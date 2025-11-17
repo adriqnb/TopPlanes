@@ -1,4 +1,8 @@
-
+//BE MINDFUL
+//THIS DOES NOT WORK
+//i think we need major changes to the physics engine
+// rotation of player character is not working properly
+//if you can figure it out please do
 let player;
 let forceMagnitude;
 
