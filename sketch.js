@@ -81,9 +81,9 @@ function keyPressed() {
   // if A pressed, rotate ship left
   // if D pressed, rotate ship right
   if (keyCode === 65) {         // A key rotates left
-    player.rotate(-45);
+    player.rotate(-5);
   } else if (keyCode === 68) {  // D key rotates right
-    player.rotate(45);
+    player.rotate(5);
   } else if (keyCode === 87) {  // W key moves forward
     player.velocity.y = -forceMagnitude;
   } else if (keyCode === 83) {  // S key moves backward
