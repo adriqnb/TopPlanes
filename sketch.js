@@ -1,123 +1,85 @@
-//BE MINDFUL
-//THIS DOES NOT WORK
-//i think we need major changes to the physics engine
-// rotation of player character is not working properly
-//if you can figure it out please do
-let player;
-let forceMagnitude;
-
+let player
 let enemyShips = [];
-
-// Player class
-class Player {
-  constructor() {
-    this.x = width / 2;
-    this.y = height - 50;
-    this.width = 40;
-    this.height = 40;
-    this.angle = 0;
-    this.color = '#ffffffff';
-
-    this.position = createVector(this.x, this.y);
-    this.velocity = createVector(0, 0);
-    this.acceleration = createVector(0, 0);
-  }
-
-  display() {
-    push();
-    fill(this.color);
-    this.rotate(this.angle);
-    rect(this.x, this.y, this.width, this.height);
-    pop();
-  }
-
-  applyForce(force) {
-    this.acceleration.add(force);
-  }
-
-  update() {
-    this.velocity.add(this.acceleration);
-    this.position.add(this.velocity);
-    this.acceleration.mult(0);
-    this.x = this.position.x;
-    this.y = this.position.y;
-  }
-  rotate(angleChange) {
-    this.angle += angleChange;
-    console.log(this.angle);
-  }
-  checkEdges() {
-    if (this.x < 0) {
-      this.x = 0;
-      this.velocity.x = 0;
-    } else if (this.x + this.width > width) {
-      this.x = width - this.width;
-      this.velocity.x = 0;
-    }
-    if (this.y < 0) {
-      this.y = 0;
-      this.velocity.y = 0;
-    } else if (this.y + this.height > height) {
-      this.y = height - this.height;
-      this.velocity.y = 0;
-  }}
-}
-
-function keyPressed() {
-  forceMagnitude = 4.0;
-  /*
-  if (keyCode === 65) {         // A key rotates left
-    player.applyForce(createVector(-forceMagnitude, 0));
-  } else if (keyCode === 68) {  // D key rotates right
-    player.applyForce(createVector(forceMagnitude, 0));
-  } else if (keyCode === 87) {  // W key moves forward
-    player.applyForce(createVector(0, -forceMagnitude));
-  } else if (keyCode === 83) {  // S key moves backward
-    player.applyForce(createVector(0, forceMagnitude));
-  }*/
-
-  // if W pressed, move ship in direction it's facing
-  // if S pressed, move ship in opposite direction
-  // if A pressed, rotate ship left
-  // if D pressed, rotate ship right
-  if (keyCode === 65) {         // A key rotates left
-    player.rotate(-5);
-  } else if (keyCode === 68) {  // D key rotates right
-    player.rotate(5);
-  } else if (keyCode === 87) {  // W key moves forward
-    player.velocity.y = -forceMagnitude;
-  } else if (keyCode === 83) {  // S key moves backward
-    player.velocity.y = forceMagnitude;
-  }
-
-  if (keyCode === SHIFT) {  // don't work
-    forceMagnitude *= 2;
-  }
-
-  if(key === "p")
-    enemyShips.push(new Ship());
-  console.log(enemyShips);
-}
-
-function keyReleased() {
-  if (keyCode === 65 || keyCode === 68) {
-    player.velocity.x = 0;
-  } else if (keyCode === 87 || keyCode === 83) {
-    player.velocity.y = 0;
-  }
-
-  if (keyCode === SHIFT) {  // don't work
-    forceMagnitude /= 2;
-  }
-
+function setup() {
   
+  createCanvas(displayWidth,displayHeight);
+  angleMode(DEGREES);
+  player = new Player();
 }
 
-class Ship
-{
-  constructor(enemy){
+function draw() {
+ background('#0071a7');
+ player.checkMovement();
+ player.update();
+ player.display();
+ for(i=0; i<enemyShips.length; i++){
+  enemyShips[i].applyTanForce(.01);  
+  enemyShips[i].update();  
+  enemyShips[i].display();
 
-      if (int(random(1,3)) === 1){  
+}
+
+}
+
+
+class Player{
+  constructor() {
+    this.mainAngle = 180;
+    this.squareSize = 50;
+    this.pos = createVector(100, 100);
+    this.vel = createVector(0, 0, 0);
+    this.flightForce = .5;
+    this.rectHeight = 50;
+    this.rectWidth = 50;
+    this.drag = .02;
+    
+  }
+  update() {
+    this.vel.x *=(1-this.drag);
+    this.vel.y *=(1-this.drag);
+    this.pos.add(this.vel);
+  }
+  display() {
+    push()
+    translate(this.pos.x,this.pos.y);
+    rotate(this.mainAngle);
+    rect(-this.rectHeight/2, -this.rectWidth/2, this.rectWidth,this.rectHeight);
+    fill(220);
+    rect(-this.rectHeight/2, -this.rectWidth/2, this.rectWidth-30,this.rectHeight);
+
+    pop()
+  }
+  applyTanForce(force){
+    this.vel.x +=(force*-cos(this.mainAngle));
+    this.vel.y +=(force*-sin(this.mainAngle));
+  }
+  checkMovement()
+  {
+    //-------------WASD----------------
+    if(keyIsDown(87) === true)
+      this.applyTanForce(this.flightForce);
+    
+    if(keyIsDown(65)){
+      this.mainAngle -= 3;
+      this.drag = .05;
+    }
+    else if(keyIsDown(68)){
+      this.mainAngle += 3;
+      this.drag = .05;
+    }
+    if(keyIsDown(83))
+      this.drag = .07;
+    else
+      this.drag = .02;
+    //----------------------------------
+    //          Afterburner
+  }
+ }
+
+
+ class Enemy{
+  constructor(){
+     if (int(random(1,3)) === 1){  
         //ship appears on left or right
         this.posY = random(0,windowHeight);
         if(int(random(1,3)) === 1)
@@ -137,28 +99,48 @@ class Ship
         console.log(int(random(1,3)));
       }
 
+    this.squareSize = 50;
+    this.pos = createVector(this.posX, this.posY);
+    this.vel = createVector(.001, .001, 0);
+    this.flightForce = .01;
+    this.rectHeight = 50;
+    this.rectWidth = 50;
+    this.drag = .02;
+    // initial angle toward the player (use atan2 so we get direction)
+    this.mainAngle = atan2(player.pos.y - this.pos.y, player.pos.x - this.pos.x);
+
   }
-
-  drawShip()
-  {
-   fill(255);
-   rect(this.posX,this.posY-50,50,50);
+  update() {
+    // recalc angle toward player each frame
+    this.mainAngle = atan2(player.pos.y - this.pos.y, player.pos.x - this.pos.x);
+    // apply thrust toward player, then drag, then move
+    this.applyTanForce(this.flightForce);
+    this.vel.x *=(1-this.drag);
+    this.vel.y *=(1-this.drag);
+    this.pos.add(this.vel);
+  }
+  display() {
+    push()
+    translate(this.pos.x,this.pos.y);
+    rotate(this.mainAngle+180);
+    fill(255,0,0)
+    rect(-this.rectHeight/2, -this.rectWidth/2, this.rectWidth,this.rectHeight);
+    fill(255,0,0);
+    rect(-this.rectHeight/2, -this.rectWidth/2, this.rectWidth-30,this.rectHeight);
+    pop()
+  }
+  applyTanForce(force){
+    // add force in the direction of mainAngle (negative to point toward player)
+    this.vel.x += (force * cos(this.mainAngle));
+    this.vel.y += (force * sin(this.mainAngle));
+  }
+         
+  }
+function keyPressed()
+{
+  if(key === "p"){
+       console.log("ran");
+   enemyShips.push(new Enemy());
   }
 }
-function setup() {
-  createCanvas(windowWidth, windowHeight);
-  frameRate(165);
-  angleMode(DEGREES);
-
-  player = new Player();
-}
-
-function draw() {
-  background('#0071a7');
-  player.display();
-  player.update();
-  player.checkEdges();
-
-  for(i=0; i<enemyShips.length; i++)
-    enemyShips[i].drawShip();
-}
+ 
