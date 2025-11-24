@@ -1,5 +1,6 @@
 let player
 let enemyShips = [];
+let playerBullet = [];
 function setup() {
   
   createCanvas(displayWidth,displayHeight);
@@ -16,15 +17,18 @@ function draw() {
   enemyShips[i].applyTanForce(.01);  
   enemyShips[i].update();  
   enemyShips[i].display();
-
 }
+/*for(i=0; i<playerBullet.length; i++){
+  playerBullet[i].applyTanForce(.1);
+  playerBullet[i].update();
+  playerBullet[i].display();
+}*/
 
 }
 
 
 class Player{
   constructor() {
-    this.mainAngle = 180;
     this.squareSize = 50;
     this.pos = createVector(100, 100);
     this.vel = createVector(0, 0, 0);
@@ -32,9 +36,9 @@ class Player{
     this.rectHeight = 50;
     this.rectWidth = 50;
     this.drag = .02;
-    
   }
   update() {
+    this.mainAngle = atan2(mouseY - this.pos.y, mouseX - this.pos.x);
     this.vel.x *=(1-this.drag);
     this.vel.y *=(1-this.drag);
     this.pos.add(this.vel);
@@ -42,35 +46,27 @@ class Player{
   display() {
     push()
     translate(this.pos.x,this.pos.y);
-    rotate(this.mainAngle);
+    rotate(this.mainAngle -180);
     rect(-this.rectHeight/2, -this.rectWidth/2, this.rectWidth,this.rectHeight);
     fill(220);
     rect(-this.rectHeight/2, -this.rectWidth/2, this.rectWidth-30,this.rectHeight);
-
     pop()
   }
-  applyTanForce(force){
-    this.vel.x +=(force*-cos(this.mainAngle));
-    this.vel.y +=(force*-sin(this.mainAngle));
-  }
+ 
   checkMovement()
   {
     //-------------WASD----------------
     if(keyIsDown(87) === true)
-      this.applyTanForce(this.flightForce);
+      this.vel.y -= .5;
     
     if(keyIsDown(65)){
-      this.mainAngle -= 3;
-      this.drag = .05;
+      this.vel.x -= .5
     }
     else if(keyIsDown(68)){
-      this.mainAngle += 3;
-      this.drag = .05;
+      this.vel.x +=.5;
     }
     if(keyIsDown(83))
-      this.drag = .07;
-    else
-      this.drag = .02;
+      this.vel.y +=.5
     //----------------------------------
     //          Afterburner
   }
@@ -136,11 +132,44 @@ class Player{
   }
          
   }
+  /*
+  class bullet
+  {
+  constructor(playerOrEnemy){
+    //if(playerOrEnemy = true)
+    //{
+      this.pos = createVector(500,500);
+      this.vel = createVector(.1,.1);//p5.Vector.fromAngle(this.angle, .01);
+      this.angle = Player.mainAngle;
+    //}
+  }
+  update()
+  {
+    this.applyTanForce(this.flightForce);
+    this.pos.add(this.vel);
+  }
+  display()
+  {
+    push()
+    //translate(this.pos.x,this.pos.y);
+    fill(255);
+    circle(this.pos.x,this.pos.y,5);
+  }
+  applyTanForce(force){
+    this.vel.x +=(force*-cos(this.angle));
+    this.vel.y +=(force*-sin(this.angle));
+  }
+    
+}*/
 function keyPressed()
 {
   if(key === "p"){
        console.log("ran");
    enemyShips.push(new Enemy());
+  }
+  if(key === "f"){
+    console.log("Ran Bullet");
+  playerBullet.push(new bullet(true));
   }
 }
  
