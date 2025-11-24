@@ -1,8 +1,26 @@
+let showText = true;
+
 let player
 let enemyShips = [];
 let playerBullet = [];
+
+// preload sound
+let shootSound;
+let bgMusic;
+
+function preload() {
+  soundFormats('mp3', 'ogg', 'wav');
+
+  shootSound = loadSound('assets/sounds/Pew.wav');
+  shootSound.setVolume(0.2);
+
+  bgMusic = loadSound('assets/sounds/menu_music_potentially.wav');
+  // play background music in loop
+  bgMusic.setVolume(0.05);
+  bgMusic.loop();
+}
+
 function setup() {
-  
   createCanvas(displayWidth,displayHeight);
   angleMode(DEGREES);
   player = new Player();
@@ -10,19 +28,24 @@ function setup() {
 
 function draw() {
  background('#0071a7');
- player.checkMovement();
- player.update();
- player.display();
- for(i=0; i<enemyShips.length; i++){
-  enemyShips[i].applyTanForce(.01);  
-  enemyShips[i].update();  
-  enemyShips[i].display();
-}
-for(i=0; i<playerBullet.length; i++){
-  playerBullet[i].applyTanForce(.1);
-  playerBullet[i].update();
-  playerBullet[i].display();
-}
+
+  startMenu();
+
+  backgroundMusicPlay();
+  
+  player.checkMovement();
+  player.update();
+  player.display();
+  for(i=0; i<enemyShips.length; i++){
+    enemyShips[i].applyTanForce(.01);  
+    enemyShips[i].update();  
+    enemyShips[i].display();
+  }
+  for(i=0; i<playerBullet.length; i++){
+    playerBullet[i].applyTanForce(.1);
+    playerBullet[i].update();
+    playerBullet[i].display();
+  }
 
 }
 
@@ -156,21 +179,54 @@ class Player{
     fill(255);
     circle(this.pos.x,this.pos.y,5);
   }
-  applyTanForce(force){
+  applyTanForce(force) {
     this.vel.x =(force*-cos(this.angle));
     this.vel.y =(force*-sin(this.angle));
   }
     
 }
+  
 function keyPressed()
 {
+  showText = false;
+
   if(key === "p"){
-       console.log("ran");
-   enemyShips.push(new Enemy());
+    console.log("ran");
+    enemyShips.push(new Enemy());
   }
   if(key === "f"){
     console.log("Ran Bullet");
-  playerBullet.push(new bullet(true));
+    playerBullet.push(new bullet(true));
+
+    // audio play shoot sound
+    if (!shootSound.isPlaying()) {
+      shootSound.play();
+    } 
+  }
+}
+
+function startMenu()
+{
+  // start game text
+  if (showText) {
+    font = loadFont('assets/fonts/PressStart2P-Regular.ttf');
+    textFont(font);
+    fill(255);
+    textSize(20);
+    textAlign(CENTER);
+    text("Use WASD to move, mouse to aim, F to shoot, P to spawn enemy ships", windowWidth/2, 30);
+    textSize(40);
+    text("Press any key to start", windowWidth/2, windowHeight/2);
+  }
+}
+
+function backgroundMusicPlay()
+{
+  if (!showText) {
+    if (!bgMusic.isPlaying()) {
+      bgMusic.setVolume(0.05);
+      bgMusic.play();
+    }
   }
 }
  
