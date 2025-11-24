@@ -1,6 +1,7 @@
 let showText = true;
 
-let player
+let player;
+let spritePlayer, spriteEnemy;
 let enemyShips = [];
 let playerBullet = [];
 
@@ -11,6 +12,9 @@ let bgMusic;
 function preload() {
   soundFormats('mp3', 'ogg', 'wav');
 
+  spriteEnemy = loadImage('enemy.gif');
+  spritePlayer = loadImage('player.gif');
+
   shootSound = loadSound('assets/sounds/Pew.wav');
   shootSound.setVolume(0.2);
 
@@ -18,6 +22,14 @@ function preload() {
   // play background music in loop
   bgMusic.setVolume(0.05);
   bgMusic.loop();
+}
+
+let enemyBullet = [];
+let bulletInterval = setInterval(runBullet, 1000)
+
+function preload() {
+  spritePlayer = loadImage('/assets/player.gif');
+  spriteEnemy = loadImage('/assets/enemy.gif');
 }
 
 function setup() {
@@ -46,6 +58,13 @@ function draw() {
     playerBullet[i].update();
     playerBullet[i].display();
   }
+for(i=0; i<enemyBullet.length; i++){
+  enemyBullet[i].applyTanForce(.1);
+  enemyBullet[i].update();
+  enemyBullet[i].display();
+}
+
+
 
 }
 
@@ -55,10 +74,9 @@ class Player{
     this.squareSize = 50;
     this.pos = createVector(100, 100);
     this.vel = createVector(0, 0, 0);
-    this.flightForce = .5;
     this.rectHeight = 50;
     this.rectWidth = 50;
-    this.drag = .02;
+    this.drag = 0.1;
   }
   update() {
     this.mainAngle = atan2(mouseY - this.pos.y, mouseX - this.pos.x);
@@ -69,10 +87,8 @@ class Player{
   display() {
     push()
     translate(this.pos.x,this.pos.y);
-    rotate(this.mainAngle -180);
-    rect(-this.rectHeight/2, -this.rectWidth/2, this.rectWidth,this.rectHeight);
-    fill(220);
-    rect(-this.rectHeight/2, -this.rectWidth/2, this.rectWidth-30,this.rectHeight);
+    rotate(this.mainAngle -90);
+    image(spritePlayer, -32, -32);
     pop()
   }
  
@@ -80,16 +96,16 @@ class Player{
   {
     //-------------WASD----------------
     if(keyIsDown(87) === true)
-      this.vel.y -= .5;
+      this.vel.y -= .75;
     
     if(keyIsDown(65)){
-      this.vel.x -= .5
+      this.vel.x -= .75
     }
     else if(keyIsDown(68)){
-      this.vel.x +=.5;
+      this.vel.x +=.75;
     }
     if(keyIsDown(83))
-      this.vel.y +=.5
+      this.vel.y +=.75
     //----------------------------------
     //          Afterburner
   }
@@ -121,10 +137,10 @@ class Player{
     this.squareSize = 50;
     this.pos = createVector(this.posX, this.posY);
     this.vel = createVector(.001, .001, 0);
-    this.flightForce = .01;
+    this.flightForce = random(0,0.008);
     this.rectHeight = 50;
     this.rectWidth = 50;
-    this.drag = .02;
+    this.drag = .01;
     // initial angle toward the player (use atan2 so we get direction)
     this.mainAngle = atan2(player.pos.y - this.pos.y, player.pos.x - this.pos.x);
 
@@ -141,11 +157,8 @@ class Player{
   display() {
     push()
     translate(this.pos.x,this.pos.y);
-    rotate(this.mainAngle+180);
-    fill(255,0,0)
-    rect(-this.rectHeight/2, -this.rectWidth/2, this.rectWidth,this.rectHeight);
-    fill(255,0,0);
-    rect(-this.rectHeight/2, -this.rectWidth/2, this.rectWidth-30,this.rectHeight);
+    rotate(this.mainAngle+270);
+    image(spriteEnemy, -32, -32);
     pop()
   }
   applyTanForce(force){
@@ -159,13 +172,22 @@ class Player{
   class bullet
   {
   constructor(playerOrEnemy){
-    //if(playerOrEnemy = true)
-    //{
+    if(playerOrEnemy === true)
+    {
+      this.color = ('#ffffff');
       this.flightForce = 5;
       this.angle = player.mainAngle-180;
       this.pos = createVector(player.pos.x,player.pos.y);
       this.vel = createVector(0, 0);
-    //}
+    }
+    else
+    {
+      this.color = ('#ff0000');
+      this.flightForce = 5;
+      this.angle = enemyShips[i].mainAngle-180;
+      this.pos = createVector(enemyShips[i].pos.x,enemyShips[i].pos.y);
+      this.vel = createVector(0, 0);
+    }
   }
   update()
   {
@@ -176,8 +198,11 @@ class Player{
   {
     push()
     //translate(this.pos.x,this.pos.y);
-    fill(255);
+    fill(this.color);
+    
+
     circle(this.pos.x,this.pos.y,5);
+    pop();
   }
   applyTanForce(force) {
     this.vel.x =(force*-cos(this.angle));
@@ -196,7 +221,7 @@ function keyPressed()
   }
   if(key === "f"){
     console.log("Ran Bullet");
-    playerBullet.push(new bullet(true));
+      playerBullet.push(new bullet(true));
 
     // audio play shoot sound
     if (!shootSound.isPlaying()) {
@@ -228,5 +253,10 @@ function backgroundMusicPlay()
       bgMusic.play();
     }
   }
+}
+function runBullet()
+{
+for(i = 0; i<enemyShips.length; i++)
+    enemyBullet.push(new bullet(false));
 }
  
