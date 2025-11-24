@@ -64,7 +64,7 @@ function draw() {
     }
     }
   }
-  for(i=0; i<enemyBullet.length; i++){
+ for(i=0; i<enemyBullet.length; i++){
     enemyBullet[i].applyTanForce(.1);
     enemyBullet[i].update();
     enemyBullet[i].display();
@@ -74,6 +74,51 @@ function draw() {
       i--
     }
   }
+// clouds on window sides
+noStroke();
+fill(255, 255, 255, 185);
+// left side
+circle(-10,0,150);
+circle(-10,100,200);
+circle(-10,300,150);
+circle(-10,500,150);
+circle(-10,600,140);
+circle(-10,700,180);
+circle(-10,900,120);
+circle(-10,1100,160);
+circle(-10,1300,200);
+// right side
+circle(windowWidth+10,100,200);
+circle(windowWidth+10,200,150);
+circle(windowWidth+10,300,150);
+circle(windowWidth+10,500,180);
+circle(windowWidth+10,700,220);
+circle(windowWidth+10,900,160);
+circle(windowWidth+10,1100,200);
+// bottom side
+circle(0,windowHeight+10,150);
+circle(100,windowHeight+10,180);
+circle(200,windowHeight+10,200);
+circle(400,windowHeight+10,150);
+circle(600,windowHeight+10,180);
+circle(800,windowHeight+10,130);
+circle(1000,windowHeight+10,170);
+circle(1200,windowHeight+10,200);
+circle(1400,windowHeight+10,160);
+circle(1600,windowHeight+10,190);
+// top side
+circle(100,-10,200);
+circle(200,-10,130);
+circle(300,-10,150);
+circle(500,-10,200);
+circle(700,-10,180);
+circle(900,-10,160);
+circle(1100,-10,190);
+circle(1300,-10,140);
+circle(1500,-10,170);
+
+
+
 }
 
 
@@ -252,7 +297,7 @@ function startMenu()
     fill(255);
     textSize(20);
     textAlign(CENTER);
-    text("Use WASD to move, mouse to aim, F to shoot, P to spawn enemy ships", windowWidth/2, 30);
+    text("Use WASD to move, mouse to aim, F to shoot, P to spawn enemy ships", windowWidth/2, 150);
     textSize(40);
     text("Press any key to start", windowWidth/2, windowHeight/2);
   }
