@@ -12,34 +12,45 @@ function preload() {
 
 function setup() {
   
-  createCanvas(displayWidth,displayHeight);
+  createCanvas(windowWidth,windowHeight);
   angleMode(DEGREES);
   player = new Player();
 }
 
 function draw() {
- background('#0071a7');
- player.checkMovement();
- player.update();
- player.display();
- for(i=0; i<enemyShips.length; i++){
-  enemyShips[i].applyTanForce(.01);  
-  enemyShips[i].update();  
-  enemyShips[i].display();
-}
-for(i=0; i<playerBullet.length; i++){
-  playerBullet[i].applyTanForce(.1);
-  playerBullet[i].update();
-  playerBullet[i].display();
-}
-for(i=0; i<enemyBullet.length; i++){
-  enemyBullet[i].applyTanForce(.1);
-  enemyBullet[i].update();
-  enemyBullet[i].display();
-}
-
-
-
+  background('#0071a7');
+  player.checkMovement();
+  player.update();
+  player.display();
+  for(i=0; i<enemyShips.length; i++){
+    enemyShips[i].applyTanForce(.01);  
+    enemyShips[i].update();  
+    enemyShips[i].display();
+  }
+  for(i=0; i<playerBullet.length; i++){
+    playerBullet[i].applyTanForce(.1);
+    playerBullet[i].update();
+    playerBullet[i].display();
+    for(j = 0; j<enemyShips.length; j++){
+    if(playerBullet.length != 0 && checkCollision(playerBullet[i].pos,enemyShips[j].pos,playerBullet[i].size,enemyShips[j].rectWidth,enemyShips[j].rectHeight))
+    {
+      enemyShips.splice(j,1);
+      j--;
+      playerBullet.splice(i,1);
+      i--;
+    }
+    }
+  }
+  for(i=0; i<enemyBullet.length; i++){
+    enemyBullet[i].applyTanForce(.1);
+    enemyBullet[i].update();
+    enemyBullet[i].display();
+    if(checkCollision(enemyBullet[i].pos,player.pos,enemyBullet[i].size,player.rectWidth,player.rectHeight)) {
+      console.log("death");
+      enemyBullet.splice(i,1);
+      i--
+    }
+  }
 }
 
 
@@ -51,6 +62,7 @@ class Player{
     this.rectHeight = 50;
     this.rectWidth = 50;
     this.drag = 0.1;
+    this.health = 100;
   }
   update() {
     this.mainAngle = atan2(mouseY - this.pos.y, mouseX - this.pos.x);
@@ -113,7 +125,7 @@ class Player{
     this.vel = createVector(.001, .001, 0);
     this.flightForce = .03;
     this.rectHeight = 50;
-    this.rectWidth = 50;
+    this.rectWidth = 20;
     this.drag = .01;
     // initial angle toward the player (use atan2 so we get direction)
     this.mainAngle = atan2(player.pos.y - this.pos.y, player.pos.x - this.pos.x);
@@ -149,10 +161,11 @@ class Player{
     if(playerOrEnemy === true)
     {
       this.color = ('#ffffff');
-      this.flightForce = 5;
+      this.flightForce = 15;
       this.angle = player.mainAngle-180;
       this.pos = createVector(player.pos.x,player.pos.y);
       this.vel = createVector(0, 0);
+      this.size = 5;
     }
     else
     {
@@ -161,6 +174,7 @@ class Player{
       this.angle = enemyShips[i].mainAngle-180;
       this.pos = createVector(enemyShips[i].pos.x,enemyShips[i].pos.y);
       this.vel = createVector(0, 0);
+      this.size = 5;
     }
   }
   update()
@@ -175,7 +189,7 @@ class Player{
     fill(this.color);
     
 
-    circle(this.pos.x,this.pos.y,5);
+    circle(this.pos.x,this.pos.y,this.size);
     pop();
   }
   applyTanForce(force){
@@ -190,7 +204,7 @@ function keyPressed()
        console.log("ran");
    enemyShips.push(new Enemy());
   }
-  if(key === "f"){
+  if(key === " "){
     console.log("Ran Bullet");
     playerBullet.push(new bullet(true));
   }
@@ -200,4 +214,44 @@ function runBullet()
 for(i = 0; i<enemyShips.length; i++)
     enemyBullet.push(new bullet(false));
 }
+
+function checkCollision(bulletPos,RectPos,circleSize,rectWidth,rectHeight)
+{
+ circleX = bulletPos.x;
+ circleY = bulletPos.y;
+ rectX = RectPos.x;
+ rectY = RectPos.y;
+ circleR = circleSize;
+ rectW = rectWidth;
+ rectH = rectHeight;
+
  
+
+if (
+    circleX + circleR > rectX && // right edge of circle > left edge of rectangle
+    circleX - circleR < rectX + rectW && // left edge of circle < right edge of rectangle
+    circleY + circleR > rectY && // bottom edge of circle > top edge of rectangle
+    circleY - circleR < rectY + rectH
+  ) {
+    // top edge of circle < bottom edge of rectangle
+    // collision detected
+    bg = color(0, 0, 255);
+    if (circleX + circleR > rectX && circleX < rectX) {
+      // circle hit left edge of rectangle
+      return true;
+    } else if (circleX - circleR < rectX + rectW && circleX > rectX + rectW) {
+      // circle hit right edge of rectangle
+      return true;
+    } else if (circleY + circleR > rectY && circleY < rectY) {
+      // circle hit top edge of rectangle
+      return true;
+    } else if (circleY - circleR < rectY + rectH && circleY > rectY + rectH) {
+      // circle hit bottom edge of rectangle
+      return true;
+    }
+  } else {
+    // no collision
+    bg = color(120, 120, 120);
+    collisionSide = "";
+  }
+}
