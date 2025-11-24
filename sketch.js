@@ -1,14 +1,31 @@
+let showText = true;
+
 let player;
 let spritePlayer, spriteEnemy;
 let enemyShips = [];
 let playerBullet = [];
-let enemyBullet = [];
-let bulletInterval = setInterval(runBullet, 1000)
+
+// preload sound
+let shootSound;
+let bgMusic;
 
 function preload() {
-  spritePlayer = loadImage('/assets/player.gif');
-  spriteEnemy = loadImage('/assets/enemy.gif');
+  soundFormats('mp3', 'ogg', 'wav');
+
+  spriteEnemy = loadImage('assets/enemy.gif');
+  spritePlayer = loadImage('assets/player.gif');
+
+  shootSound = loadSound('assets/sounds/Pew.wav');
+  shootSound.setVolume(0.2);
+
+  bgMusic = loadSound('assets/sounds/menu_music_potentially.wav');
+  // play background music in loop
+  bgMusic.setVolume(0.05);
+  bgMusic.loop();
 }
+
+let enemyBullet = [];
+let bulletInterval = setInterval(runBullet, 1000)
 
 function setup() {
   
@@ -18,7 +35,12 @@ function setup() {
 }
 
 function draw() {
-  background('#0071a7');
+ background('#0071a7');
+
+  startMenu();
+
+  backgroundMusicPlay();
+  
   player.checkMovement();
   player.update();
   player.display();
@@ -31,6 +53,7 @@ function draw() {
     playerBullet[i].applyTanForce(.1);
     playerBullet[i].update();
     playerBullet[i].display();
+  
     for(j = 0; j<enemyShips.length; j++){
     if(playerBullet.length != 0 && checkCollision(playerBullet[i].pos,enemyShips[j].pos,playerBullet[i].size,enemyShips[j].rectWidth,enemyShips[j].rectHeight))
     {
@@ -94,6 +117,10 @@ class Player{
       this.vel.y +=.75
     //----------------------------------
     //          Afterburner
+
+    // constrain player to window
+    this.pos.x = constrain(this.pos.x, 0, windowWidth);
+    this.pos.y = constrain(this.pos.y, 0, windowHeight);
   }
  }
 
@@ -123,7 +150,7 @@ class Player{
     this.squareSize = 50;
     this.pos = createVector(this.posX, this.posY);
     this.vel = createVector(.001, .001, 0);
-    this.flightForce = .03;
+    this.flightForce = random(0,0.008);
     this.rectHeight = 50;
     this.rectWidth = 20;
     this.drag = .01;
@@ -192,26 +219,58 @@ class Player{
     circle(this.pos.x,this.pos.y,this.size);
     pop();
   }
-  applyTanForce(force){
+  applyTanForce(force) {
     this.vel.x =(force*-cos(this.angle));
     this.vel.y =(force*-sin(this.angle));
   }
     
 }
+  
 function keyPressed()
 {
+  showText = false;
+
   if(key === "p"){
-       console.log("ran");
-   enemyShips.push(new Enemy());
+    console.log("ran");
+    enemyShips.push(new Enemy());
   }
   if(key === " "){
     console.log("Ran Bullet");
-    playerBullet.push(new bullet(true));
+      playerBullet.push(new bullet(true));
+
+    // audio play shoot sound
+    if (!shootSound.isPlaying()) {
+      shootSound.play();
+    } 
   }
 }
+
+function startMenu()
+{
+  // start game text
+  if (showText) {
+    fill(255);
+    textSize(20);
+    textAlign(CENTER);
+    text("Use WASD to move, mouse to aim, F to shoot, P to spawn enemy ships", windowWidth/2, 30);
+    textSize(40);
+    text("Press any key to start", windowWidth/2, windowHeight/2);
+  }
+}
+
+function backgroundMusicPlay()
+{
+  if (!showText) {
+    if (!bgMusic.isPlaying()) {
+      bgMusic.setVolume(0.05);
+      bgMusic.play();
+    }
+  }
+}
+
 function runBullet()
 {
-for(i = 0; i<enemyShips.length; i++)
+  for(i = 0; i<enemyShips.length; i++)
     enemyBullet.push(new bullet(false));
 }
 
