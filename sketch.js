@@ -2,6 +2,8 @@ let player;
 let spritePlayer, spriteEnemy;
 let enemyShips = [];
 let playerBullet = [];
+let enemyBullet = [];
+let bulletInterval = setInterval(runBullet, 1000)
 
 function preload() {
   spritePlayer = loadImage('/assets/player.gif');
@@ -30,6 +32,13 @@ for(i=0; i<playerBullet.length; i++){
   playerBullet[i].update();
   playerBullet[i].display();
 }
+for(i=0; i<enemyBullet.length; i++){
+  enemyBullet[i].applyTanForce(.1);
+  enemyBullet[i].update();
+  enemyBullet[i].display();
+}
+
+
 
 }
 
@@ -137,13 +146,22 @@ class Player{
   class bullet
   {
   constructor(playerOrEnemy){
-    //if(playerOrEnemy = true)
-    //{
+    if(playerOrEnemy === true)
+    {
+      this.color = ('#ffffff');
       this.flightForce = 5;
       this.angle = player.mainAngle-180;
       this.pos = createVector(player.pos.x,player.pos.y);
       this.vel = createVector(0, 0);
-    //}
+    }
+    else
+    {
+      this.color = ('#ff0000');
+      this.flightForce = 5;
+      this.angle = enemyShips[i].mainAngle-180;
+      this.pos = createVector(enemyShips[i].pos.x,enemyShips[i].pos.y);
+      this.vel = createVector(0, 0);
+    }
   }
   update()
   {
@@ -154,8 +172,11 @@ class Player{
   {
     push()
     //translate(this.pos.x,this.pos.y);
-    fill(255);
+    fill(this.color);
+    
+
     circle(this.pos.x,this.pos.y,5);
+    pop();
   }
   applyTanForce(force){
     this.vel.x =(force*-cos(this.angle));
@@ -171,7 +192,12 @@ function keyPressed()
   }
   if(key === "f"){
     console.log("Ran Bullet");
-  playerBullet.push(new bullet(true));
+    playerBullet.push(new bullet(true));
   }
+}
+function runBullet()
+{
+for(i = 0; i<enemyShips.length; i++)
+    enemyBullet.push(new bullet(false));
 }
  
