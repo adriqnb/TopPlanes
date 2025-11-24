@@ -12,13 +12,13 @@ let bgMusic;
 function preload() {
   soundFormats('mp3', 'ogg', 'wav');
 
-  spriteEnemy = loadImage('/assets/enemy.gif');
-  spritePlayer = loadImage('/assets/player.gif');
+  spriteEnemy = loadImage('assets/enemy.gif');
+  spritePlayer = loadImage('assets/player.gif');
 
-  shootSound = loadSound('/assets/sounds/Pew.wav');
+  shootSound = loadSound('assets/sounds/Pew.wav');
   shootSound.setVolume(0.2);
 
-  bgMusic = loadSound('/assets/sounds/menu_music_potentially.wav');
+  bgMusic = loadSound('assets/sounds/menu_music_potentially.wav');
   // play background music in loop
   bgMusic.setVolume(0.05);
   bgMusic.loop();
@@ -103,6 +103,10 @@ class Player{
       this.vel.y +=.75
     //----------------------------------
     //          Afterburner
+
+    // constrain player to window
+    this.pos.x = constrain(this.pos.x, 0, windowWidth);
+    this.pos.y = constrain(this.pos.y, 0, windowHeight);
   }
  }
 
