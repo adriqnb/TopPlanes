@@ -18,11 +18,11 @@ function draw() {
   enemyShips[i].update();  
   enemyShips[i].display();
 }
-/*for(i=0; i<playerBullet.length; i++){
+for(i=0; i<playerBullet.length; i++){
   playerBullet[i].applyTanForce(.1);
   playerBullet[i].update();
   playerBullet[i].display();
-}*/
+}
 
 }
 
@@ -132,15 +132,16 @@ class Player{
   }
          
   }
-  /*
+  
   class bullet
   {
   constructor(playerOrEnemy){
     //if(playerOrEnemy = true)
     //{
-      this.pos = createVector(500,500);
-      this.vel = createVector(.1,.1);//p5.Vector.fromAngle(this.angle, .01);
-      this.angle = Player.mainAngle;
+      this.flightForce = 5;
+      this.angle = player.mainAngle-180;
+      this.pos = createVector(player.pos.x,player.pos.y);
+      this.vel = createVector(0, 0);
     //}
   }
   update()
@@ -156,11 +157,11 @@ class Player{
     circle(this.pos.x,this.pos.y,5);
   }
   applyTanForce(force){
-    this.vel.x +=(force*-cos(this.angle));
-    this.vel.y +=(force*-sin(this.angle));
+    this.vel.x =(force*-cos(this.angle));
+    this.vel.y =(force*-sin(this.angle));
   }
     
-}*/
+}
 function keyPressed()
 {
   if(key === "p"){
