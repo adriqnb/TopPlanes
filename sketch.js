@@ -12,13 +12,13 @@ let bgMusic;
 function preload() {
   soundFormats('mp3', 'ogg', 'wav');
 
-  spriteEnemy = loadImage('enemy.gif');
-  spritePlayer = loadImage('player.gif');
+  spriteEnemy = loadImage('/assets/enemy.gif');
+  spritePlayer = loadImage('/assets/player.gif');
 
-  shootSound = loadSound('assets/sounds/Pew.wav');
+  shootSound = loadSound('/assets/sounds/Pew.wav');
   shootSound.setVolume(0.2);
 
-  bgMusic = loadSound('assets/sounds/menu_music_potentially.wav');
+  bgMusic = loadSound('/assets/sounds/menu_music_potentially.wav');
   // play background music in loop
   bgMusic.setVolume(0.05);
   bgMusic.loop();
@@ -26,11 +26,6 @@ function preload() {
 
 let enemyBullet = [];
 let bulletInterval = setInterval(runBullet, 1000)
-
-function preload() {
-  spritePlayer = loadImage('/assets/player.gif');
-  spriteEnemy = loadImage('/assets/enemy.gif');
-}
 
 function setup() {
   createCanvas(displayWidth,displayHeight);
@@ -234,8 +229,6 @@ function startMenu()
 {
   // start game text
   if (showText) {
-    font = loadFont('assets/fonts/PressStart2P-Regular.ttf');
-    textFont(font);
     fill(255);
     textSize(20);
     textAlign(CENTER);
@@ -254,9 +247,10 @@ function backgroundMusicPlay()
     }
   }
 }
+
 function runBullet()
 {
-for(i = 0; i<enemyShips.length; i++)
+  for(i = 0; i<enemyShips.length; i++)
     enemyBullet.push(new bullet(false));
 }
  
