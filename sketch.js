@@ -111,7 +111,7 @@ class Player{
     this.squareSize = 50;
     this.pos = createVector(this.posX, this.posY);
     this.vel = createVector(.001, .001, 0);
-    this.flightForce = .03;
+    this.flightForce = random(0,0.008);
     this.rectHeight = 50;
     this.rectWidth = 50;
     this.drag = .01;
