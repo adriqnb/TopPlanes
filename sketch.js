@@ -1,6 +1,13 @@
-let player
+let player;
+let spritePlayer, spriteEnemy;
 let enemyShips = [];
 let playerBullet = [];
+
+function preload() {
+  spritePlayer = loadImage('/assets/player.gif');
+  spriteEnemy = loadImage('/assets/enemy.gif');
+}
+
 function setup() {
   
   createCanvas(displayWidth,displayHeight);
@@ -32,10 +39,9 @@ class Player{
     this.squareSize = 50;
     this.pos = createVector(100, 100);
     this.vel = createVector(0, 0, 0);
-    this.flightForce = .5;
     this.rectHeight = 50;
     this.rectWidth = 50;
-    this.drag = .02;
+    this.drag = 0.1;
   }
   update() {
     this.mainAngle = atan2(mouseY - this.pos.y, mouseX - this.pos.x);
@@ -46,10 +52,8 @@ class Player{
   display() {
     push()
     translate(this.pos.x,this.pos.y);
-    rotate(this.mainAngle -180);
-    rect(-this.rectHeight/2, -this.rectWidth/2, this.rectWidth,this.rectHeight);
-    fill(220);
-    rect(-this.rectHeight/2, -this.rectWidth/2, this.rectWidth-30,this.rectHeight);
+    rotate(this.mainAngle -90);
+    image(spritePlayer, -32, -32);
     pop()
   }
  
@@ -57,16 +61,16 @@ class Player{
   {
     //-------------WASD----------------
     if(keyIsDown(87) === true)
-      this.vel.y -= .5;
+      this.vel.y -= .75;
     
     if(keyIsDown(65)){
-      this.vel.x -= .5
+      this.vel.x -= .75
     }
     else if(keyIsDown(68)){
-      this.vel.x +=.5;
+      this.vel.x +=.75;
     }
     if(keyIsDown(83))
-      this.vel.y +=.5
+      this.vel.y +=.75
     //----------------------------------
     //          Afterburner
   }
@@ -98,10 +102,10 @@ class Player{
     this.squareSize = 50;
     this.pos = createVector(this.posX, this.posY);
     this.vel = createVector(.001, .001, 0);
-    this.flightForce = .01;
+    this.flightForce = .03;
     this.rectHeight = 50;
     this.rectWidth = 50;
-    this.drag = .02;
+    this.drag = .01;
     // initial angle toward the player (use atan2 so we get direction)
     this.mainAngle = atan2(player.pos.y - this.pos.y, player.pos.x - this.pos.x);
 
@@ -118,11 +122,8 @@ class Player{
   display() {
     push()
     translate(this.pos.x,this.pos.y);
-    rotate(this.mainAngle+180);
-    fill(255,0,0)
-    rect(-this.rectHeight/2, -this.rectWidth/2, this.rectWidth,this.rectHeight);
-    fill(255,0,0);
-    rect(-this.rectHeight/2, -this.rectWidth/2, this.rectWidth-30,this.rectHeight);
+    rotate(this.mainAngle+270);
+    image(spriteEnemy, -32, -32);
     pop()
   }
   applyTanForce(force){
