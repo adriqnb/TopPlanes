@@ -50,12 +50,13 @@ function draw() {
     enemyShips[i].display();
   }
   for(i=0; i<playerBullet.length; i++){
-    playerBullet[i].applyTanForce(.1);
-    playerBullet[i].update();
-    playerBullet[i].display();
+    const pb = playerBullet[i];
+    pb.applyTanForce(.1);
+    pb.update();
+    pb.display();
   
     for(j = 0; j<enemyShips.length; j++){
-    if(playerBullet.length != 0 && checkCollision(playerBullet[i].pos,enemyShips[j].pos,playerBullet[i].size,enemyShips[j].rectWidth,enemyShips[j].rectHeight))
+    if(playerBullet.length != 0 && checkCollision(pb.pos,enemyShips[j].pos,pb.size,enemyShips[j].rectWidth,enemyShips[j].rectHeight))
     {
       enemyShips.splice(j,1);
       j--;
@@ -72,6 +73,7 @@ function draw() {
       console.log("death");
       enemyBullet.splice(i,1);
       i--
+      player.health -= 10;
     }
   }
 // clouds on window sides
@@ -117,8 +119,8 @@ circle(1100,-10,190);
 circle(1300,-10,140);
 circle(1500,-10,170);
 
-
-
+fill(41,255,82)
+rect(100,100,player.health,20); //health bar
 }
 
 
@@ -325,7 +327,7 @@ function checkCollision(bulletPos,RectPos,circleSize,rectWidth,rectHeight)
  circleY = bulletPos.y;
  rectX = RectPos.x;
  rectY = RectPos.y;
- circleR = circleSize;
+ circleR = circleSize*2;
  rectW = rectWidth;
  rectH = rectHeight;
 
