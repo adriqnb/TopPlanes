@@ -1,9 +1,10 @@
 let showText = true;
 
 let player;
-let spritePlayer, spriteEnemy;
+let spritePlayer, spriteEnemy, spriteCrosshair;
 let enemyShips = [];
 let playerBullet = [];
+let timePassed;
 
 // preload sound
 let shootSound;
@@ -14,6 +15,7 @@ function preload() {
 
   spriteEnemy = loadImage('assets/enemy.gif');
   spritePlayer = loadImage('assets/player.gif');
+  spriteCrosshair = loadImage('assets/crosshair.gif');
 
   shootSound = loadSound('assets/sounds/Pew.wav');
   shootSound.setVolume(0.2);
@@ -28,20 +30,22 @@ let enemyBullet = [];
 let bulletInterval = setInterval(runBullet, 1000)
 
 function setup() {
-  
   createCanvas(windowWidth,windowHeight);
   angleMode(DEGREES);
   player = new Player();
+  timePassed = millis();
 }
 
 function draw() {
- background('#0071a7');
+  background('#0071a7');
+  noCursor();
 
   startMenu();
 
   backgroundMusicPlay();
   
   player.checkMovement();
+  player.checkShooting(); //rapid fire function
   player.update();
   player.display();
   for(i=0; i<enemyShips.length; i++){
@@ -121,10 +125,14 @@ circle(1500,-10,170);
 
 fill(41,255,82)
 rect(100,100,player.health,20); //health bar
+
+image(spriteCrosshair, mouseX-25.5, mouseY-13.5);
+  spriteCrosshair.delay(5)
+
 }
 
 
-class Player{
+class Player {
   constructor() {
     this.squareSize = 50;
     this.pos = createVector(100, 100);
@@ -151,7 +159,7 @@ class Player{
   checkMovement()
   {
     //-------------WASD----------------
-    if(keyIsDown(87) === true)
+    if(keyIsDown(87))
       this.vel.y -= .75;
     
     if(keyIsDown(65)){
@@ -169,10 +177,32 @@ class Player{
     this.pos.x = constrain(this.pos.x, 0, windowWidth);
     this.pos.y = constrain(this.pos.y, 0, windowHeight);
   }
- }
+  
+  checkShooting()
+  {
+    //----------------------------------
+    //    Check for shooting input
+    if(keyIsDown(32) && (millis() > (timePassed + 150))) // (timePassed + interval between bullets)
+    {
+      console.log("Ran Bullet");
+      playerBullet.push(new bullet(true));
+
+      spriteCrosshair.reset();
+
+      // audio play shoot sound
+      if (!shootSound.isPlaying()) {
+        shootSound.play();
+      } 
+      timePassed = millis();
+    }
+  }
+
+}
+
+  
 
 
- class Enemy{
+class Enemy{
   constructor(){
      if (int(random(1,3)) === 1){  
         //ship appears on left or right
@@ -281,15 +311,6 @@ function keyPressed()
     console.log("ran");
     enemyShips.push(new Enemy());
   }
-  if(key === " "){
-    console.log("Ran Bullet");
-      playerBullet.push(new bullet(true));
-
-    // audio play shoot sound
-    if (!shootSound.isPlaying()) {
-      shootSound.play();
-    } 
-  }
 }
 
 function startMenu()
@@ -299,7 +320,7 @@ function startMenu()
     fill(255);
     textSize(20);
     textAlign(CENTER);
-    text("Use WASD to move, mouse to aim, F to shoot, P to spawn enemy ships", windowWidth/2, 150);
+    text("Use WASD to move, mouse to aim, Space to shoot, P to spawn enemy ships", windowWidth/2, 150);
     textSize(40);
     text("Press any key to start", windowWidth/2, windowHeight/2);
   }
