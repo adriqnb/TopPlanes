@@ -5,6 +5,8 @@ let spritePlayer, spriteEnemy, spriteCrosshair;
 let enemyShips = [];
 let playerBullet = [];
 let timePassed;
+let death = false;
+let score = 0;
 
 // preload sound
 let shootSound;
@@ -43,7 +45,11 @@ function draw() {
   startMenu();
 
   backgroundMusicPlay();
+
+  if(player.health <= 0)
+    death = true;
   
+  if(death === false){
   player.checkMovement();
   player.checkShooting(); //rapid fire function
   player.update();
@@ -60,12 +66,13 @@ function draw() {
     pb.display();
   
     for(j = 0; j<enemyShips.length; j++){
-    if(playerBullet.length != 0 && checkCollision(pb.pos,enemyShips[j].pos,pb.size,enemyShips[j].rectWidth,enemyShips[j].rectHeight))
+    if(playerBullet.length != 0 && checkCollision(pb.pos,enemyShips[j].pos,pb.size,enemyShips[j].rectWidth,enemyShips[j].rectHeight,pb.mainAngle))
     {
       enemyShips.splice(j,1);
       j--;
       playerBullet.splice(i,1);
       i--;
+      score += 10;
     }
     }
   }
@@ -73,7 +80,7 @@ function draw() {
     enemyBullet[i].applyTanForce(.1);
     enemyBullet[i].update();
     enemyBullet[i].display();
-    if(checkCollision(enemyBullet[i].pos,player.pos,enemyBullet[i].size,player.rectWidth,player.rectHeight)) {
+    if(checkCollision(enemyBullet[i].pos,player.pos,enemyBullet[i].size,player.rectWidth,player.rectHeight,player.mainAngle)) {
       console.log("death");
       enemyBullet.splice(i,1);
       i--
@@ -122,25 +129,40 @@ circle(900,-10,160);
 circle(1100,-10,190);
 circle(1300,-10,140);
 circle(1500,-10,170);
-
+push()
+stroke(2);
+fill(255)
+rect(150,100,player.maxHealth,20); //max health
+pop()
+push()
 fill(41,255,82)
-rect(100,100,player.health,20); //health bar
-
+rect(150,100,player.health,20); //current health
+fill(255);
+textSize(20);
+text(player.health+'/'+player.maxHealth,200,90,)
+pop()
 image(spriteCrosshair, mouseX-25.5, mouseY-13.5);
   spriteCrosshair.delay(5)
-
+  }
+  if(death === true)
+  {
+    fill(255)
+    text("Game Over! Press R to restart", windowWidth/2,windowHeight/2-100)
+    text("score: ")
+  }
 }
 
 
 class Player {
   constructor() {
     this.squareSize = 50;
-    this.pos = createVector(100, 100);
+    this.pos = createVector(windowWidth/2, windowHeight/2+100);
     this.vel = createVector(0, 0, 0);
-    this.rectHeight = 50;
-    this.rectWidth = 50;
+    this.rectHeight = 25;
+    this.rectWidth = 25;
     this.drag = 0.1;
     this.health = 100;
+    this.maxHealth = 100;
   }
   update() {
     this.mainAngle = atan2(mouseY - this.pos.y, mouseX - this.pos.x);
@@ -228,8 +250,8 @@ class Enemy{
     this.pos = createVector(this.posX, this.posY);
     this.vel = createVector(.001, .001, 0);
     this.flightForce = random(0,0.008);
-    this.rectHeight = 50;
-    this.rectWidth = 20;
+    this.rectHeight = 25;
+    this.rectWidth = 25;
     this.drag = .01;
     // initial angle toward the player (use atan2 so we get direction)
     this.mainAngle = atan2(player.pos.y - this.pos.y, player.pos.x - this.pos.x);
@@ -306,8 +328,13 @@ class Enemy{
 function keyPressed()
 {
   showText = false;
-
-  if(key === "p"){
+  if((key === "r" || key === "R") && death === true)
+  {
+    resetGame();
+    death = false;
+  }
+  if(key === "p" || key === "P")
+  {
     console.log("ran");
     enemyShips.push(new Enemy());
   }
@@ -342,7 +369,7 @@ function runBullet()
     enemyBullet.push(new bullet(false));
 }
 
-function checkCollision(bulletPos,RectPos,circleSize,rectWidth,rectHeight)
+function checkCollision(bulletPos,RectPos,circleSize,rectWidth,rectHeight,angle)
 {
  circleX = bulletPos.x;
  circleY = bulletPos.y;
@@ -381,4 +408,16 @@ if (
     bg = color(120, 120, 120);
     collisionSide = "";
   }
+}
+
+function resetGame()
+{
+  player.maxHealth = 100;
+  player.health = 100;
+  score = 0;
+  player.pos.x = windowWidth/2;
+  player.pos.y = windowHeight/2+100;
+  enemyShips = [];
+  playerBullet = [];
+  enemyBullet = [];
 }
