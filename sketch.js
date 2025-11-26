@@ -5,6 +5,8 @@ let spritePlayer, spriteEnemy, spriteCrosshair, clouds;
 let enemyShips = [];
 let playerBullet = [];
 let timePassed;
+let death = false;
+let score = 0;
 let bgVolume = 0.25;
 let bulletVolume = 0.05;
 
@@ -46,7 +48,11 @@ function draw() {
   startMenu();
 
   backgroundMusicPlay();
+
+  if(player.health <= 0)
+    death = true;
   
+  if(death === false){
   player.checkMovement();
   player.checkShooting(); //rapid fire function
   player.update();
@@ -57,17 +63,19 @@ function draw() {
     enemyShips[i].display();
   }
   for(i=0; i<playerBullet.length; i++){
-    playerBullet[i].applyTanForce(.1);
-    playerBullet[i].update();
-    playerBullet[i].display();
+    const pb = playerBullet[i];
+    pb.applyTanForce(.1);
+    pb.update();
+    pb.display();
   
     for(j = 0; j<enemyShips.length; j++){
-    if(playerBullet.length != 0 && checkCollision(playerBullet[i].pos,enemyShips[j].pos,playerBullet[i].size,enemyShips[j].rectWidth,enemyShips[j].rectHeight))
+    if(playerBullet.length != 0 && checkCollision(pb.pos,enemyShips[j].pos,pb.size,enemyShips[j].rectWidth,enemyShips[j].rectHeight,pb.mainAngle))
     {
       enemyShips.splice(j,1);
       j--;
       playerBullet.splice(i,1);
       i--;
+      score += 10;
     }
     }
   }
@@ -75,17 +83,35 @@ function draw() {
     enemyBullet[i].applyTanForce(.1);
     enemyBullet[i].update();
     enemyBullet[i].display();
-    if(checkCollision(enemyBullet[i].pos,player.pos,enemyBullet[i].size,player.rectWidth,player.rectHeight)) {
+    if(checkCollision(enemyBullet[i].pos,player.pos,enemyBullet[i].size,player.rectWidth,player.rectHeight,player.mainAngle)) {
       console.log("death");
       enemyBullet.splice(i,1);
       i--
+      player.health -= 10;
     }
   }
-
-  image(spriteCrosshair, mouseX-25.5, mouseY-13.5);
+push()
+stroke(2);
+fill(255)
+rect(150,100,player.maxHealth,20); //max health
+pop()
+push()
+fill(41,255,82)
+rect(150,100,player.health,20); //current health
+fill(255);
+textSize(20);
+text(player.health+'/'+player.maxHealth,200,90,)
+pop()
+image(spriteCrosshair, mouseX-25.5, mouseY-13.5);
   spriteCrosshair.delay(5)
   drawClouds();
-
+  }
+  if(death === true)
+  {
+    fill(255)
+    text("Game Over! Press R to restart", windowWidth/2,windowHeight/2-100)
+    text("score: ")
+  }
 }
 
 
@@ -94,10 +120,11 @@ class Player {
     this.squareSize = 50;
     this.pos = createVector(windowWidth/2, windowHeight/2);
     this.vel = createVector(0, 0, 0);
-    this.rectHeight = 50;
-    this.rectWidth = 50;
+    this.rectHeight = 25;
+    this.rectWidth = 25;
     this.drag = 0.1;
     this.health = 100;
+    this.maxHealth = 100;
   }
   update() {
     this.mainAngle = atan2(mouseY - this.pos.y, mouseX - this.pos.x);
@@ -181,8 +208,8 @@ class Enemy{
     this.pos = createVector(this.posX, this.posY);
     this.vel = createVector(.001, .001, 0);
     this.flightForce = random(0,0.008);
-    this.rectHeight = 50;
-    this.rectWidth = 20;
+    this.rectHeight = 25;
+    this.rectWidth = 25;
     this.drag = .01;
     // initial angle toward the player (use atan2 so we get direction)
     this.mainAngle = atan2(player.pos.y - this.pos.y, player.pos.x - this.pos.x);
@@ -259,8 +286,13 @@ class Enemy{
 function keyPressed()
 {
   showText = false;
-
-  if(key === "p"){
+  if((key === "r" || key === "R") && death === true)
+  {
+    resetGame();
+    death = false;
+  }
+  if(key === "p" || key === "P")
+  {
     console.log("ran");
     enemyShips.push(new Enemy());
   }
@@ -299,13 +331,13 @@ function runBullet()
     enemyBullet.push(new bullet(false));
 }
 
-function checkCollision(bulletPos,RectPos,circleSize,rectWidth,rectHeight)
+function checkCollision(bulletPos,RectPos,circleSize,rectWidth,rectHeight,angle)
 {
  circleX = bulletPos.x;
  circleY = bulletPos.y;
  rectX = RectPos.x;
  rectY = RectPos.y;
- circleR = circleSize;
+ circleR = circleSize*2;
  rectW = rectWidth;
  rectH = rectHeight;
 
@@ -354,4 +386,32 @@ function drawClouds() {
     image(clouds, -80, i - 80, 200, 200);
     image(clouds, windowWidth - 120, i - 50, 200, 200);
   }  
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function drawClouds() {
+  // draw clouds
+  for (let i = 180; i <= windowWidth-180; i += 180) {
+    image(clouds, i - 80, windowHeight - 120, 200, 200);
+    image(clouds, i - 80, -80, 200, 200);
+  }  
+  for (let i = 0; i <= windowHeight; i += 180) {
+    image(clouds, -80, i - 80, 200, 200);
+    image(clouds, windowWidth - 120, i - 50, 200, 200);
+  }  
+}
+
+function resetGame()
+{
+  player.maxHealth = 100;
+  player.health = 100;
+  score = 0;
+  player.pos.x = windowWidth/2;
+  player.pos.y = windowHeight/2+100;
+  enemyShips = [];
+  playerBullet = [];
+  enemyBullet = [];
 }
