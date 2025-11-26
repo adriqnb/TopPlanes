@@ -90,21 +90,19 @@ function draw() {
       player.health -= 10;
     }
   }
+  drawClouds();
 push()
 stroke(2);
-fill(255)
-rect(150,100,player.maxHealth,20); //max health
+fill(0)
+rect(50,55,player.maxHealth,20); //max health
 pop()
 push()
 fill(41,255,82)
-rect(150,100,player.health,20); //current health
-fill(255);
+rect(50,55,player.health,20); //current health
+fill(0);
 textSize(20);
-text(player.health+'/'+player.maxHealth,200,90,)
+text(player.health+'/'+player.maxHealth,100,50)
 pop()
-image(spriteCrosshair, mouseX-25.5, mouseY-13.5);
-  spriteCrosshair.delay(5)
-  drawClouds();
   }
   if(death === true)
   {
@@ -112,6 +110,9 @@ image(spriteCrosshair, mouseX-25.5, mouseY-13.5);
     text("Game Over! Press R to restart", windowWidth/2,windowHeight/2-100)
     text("score: ")
   }
+
+  image(spriteCrosshair, mouseX-25.5, mouseY-13.5);
+  spriteCrosshair.delay(5);
 }
 
 
