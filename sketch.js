@@ -5,12 +5,12 @@ let player;
 let spritePlayer, spriteEnemy, spriteCrosshair, clouds, bgTile;
 let enemyShips = [];
 let playerBullet = [];
-let bgArray = [];
 let lastShotTime;
 let death = false;
 let score = 0;
 let bgVolume = 0.25;
 let bulletVolume = 0.05;
+let bgArray = [];
 
 // preload sound
 let shootSound;
@@ -42,14 +42,12 @@ function setup() {
   angleMode(DEGREES);
   player = new Player();
   lastShotTime = millis();
+  
+  initBg(); // initialize background columns
 }
 
 function draw() {
-  background('#0071a7');
   drawBg();
-  for (let i = 0; i < bgArray.length; i++) {
-    bgArray[i].draw();
-  }
   noCursor();
   
   startMenu();
@@ -64,19 +62,19 @@ function draw() {
     player.checkShooting(); //rapid fire function
     player.update();
     player.display();
-    for (i=0; i<enemyShips.length; i++){
+    for (i = 0; i < enemyShips.length; i++){
       enemyShips[i].applyTanForce(.01);  
       enemyShips[i].update();  
       enemyShips[i].display();
     } 
 
-    for (i=0; i<playerBullet.length; i++){
+    for (i = 0; i < playerBullet.length; i++){
       const pb = playerBullet[i];
       pb.applyTanForce(.1);
       pb.update();
       pb.display();
 
-      for (j = 0; j<enemyShips.length; j++){
+      for (j = 0; j < enemyShips.length; j++){
         if (playerBullet.length != 0 && checkCollision(pb.pos,enemyShips[j].pos,pb.size,enemyShips[j].rectWidth,enemyShips[j].rectHeight,pb.mainAngle))
         {
           enemyShips.splice(j,1);
@@ -87,17 +85,17 @@ function draw() {
         }
       }
     }
-    for(i=0; i<enemyBullet.length; i++){
+    for(i = 0; i < enemyBullet.length; i++){
       enemyBullet[i].applyTanForce(.1);
       enemyBullet[i].update();
       enemyBullet[i].display();
       if(checkCollision(enemyBullet[i].pos,player.pos,enemyBullet[i].size,player.rectWidth,player.rectHeight,player.mainAngle)) {
-        console.log("death");
         enemyBullet.splice(i,1);
-        i--
+        i--;
         player.health -= 10;
       }
     }
+    
 
     //draw health bar
     push();
@@ -123,7 +121,7 @@ function draw() {
     fill(255)
     textSize(40);
     textAlign(CENTER);
-    text("Game Over! Press R to restart", windowWidth/2,windowHeight/2-100)
+    text("Game Over! Press R to restart", width/2,height/2-100)
     text("score: ")
     pop();
   }
@@ -138,7 +136,7 @@ function draw() {
 class Player {
   constructor() {
     this.squareSize = 50;
-    this.pos = createVector(windowWidth/2, windowHeight/2);
+    this.pos = createVector(width/2, height/2);
     this.vel = createVector(0, 0, 0);
     this.rectHeight = 25;
     this.rectWidth = 25;
@@ -180,8 +178,8 @@ class Player {
     //          Afterburner
 
     // constrain player to window
-    this.pos.x = constrain(this.pos.x, 35, windowWidth-35);
-    this.pos.y = constrain(this.pos.y, 35, windowHeight-35);
+    this.pos.x = constrain(this.pos.x, 35, width-35);
+    this.pos.y = constrain(this.pos.y, 35, height-35);
   }
   
   checkShooting()
@@ -208,20 +206,20 @@ class Enemy{
   constructor(){
      if (int(random(1,3)) === 1){  
         //ship appears on left or right
-        this.posY = random(0,windowHeight);
+        this.posY = random(0,height);
         if(int(random(1,3)) === 1)
           this.posX = 0;
         else
-          this.posX = windowWidth-50;
+          this.posX = width-50;
       }
       else
       {
         //ship appears on top or bottom
-        this.posX = random(0,windowWidth-50);
+        this.posX = random(0,width-50);
         if(int(random(1,3)) === 1)
           this.posY = 50;
         else
-          this.posY = windowHeight;
+          this.posY = height;
         console.log(this.posX);
         console.log(int(random(1,3)));
       }
@@ -306,6 +304,45 @@ class Enemy{
   }
     
 }
+
+class BgCol {
+  constructor(xpos) {
+    this.xpos = xpos;
+  }
+
+  display() {
+    // speed of background movement
+    this.xpos += 0.5;
+
+    for (let j = 0; j < height; j += bgTile.height) {
+      image(bgTile, this.xpos, j);
+    }
+    if (this.xpos >= width+bgTile.width) {
+      bgArray.shift();
+    }
+  }
+
+  getXpos() {
+    return this.xpos;
+  }
+}
+
+function drawBg() {
+  // draw background columns as each column moves off screen
+  for (let i = 0; i < bgArray.length; i++) {
+    bgArray[i].display();
+  }
+  if (bgArray[bgArray.length - 1].getXpos() > 0) {
+    bgArray.push(new BgCol(-bgTile.width+2));
+  }
+}
+
+function initBg() {
+  // initialize background columns
+  for (let i = width; i > -bgTile.width; i -= bgTile.width) {
+    bgArray.push(new BgCol(i));
+  }
+}
   
 function keyPressed()
 {
@@ -324,9 +361,9 @@ function keyPressed()
   {
     if (!paused) {
       frameRate(0);
-      image(pause, windowWidth/2-256, windowHeight/2-256);
+      image(pause, width/2-256, height/2-256);
       fill('rgba(0, 0, 0, 0.5)');
-      rect(0, 0, windowWidth, windowHeight);
+      rect(0, 0, width, height);
     } else {
       frameRate(60);
     }
@@ -348,9 +385,9 @@ function startMenu()
     fill(255);
     textSize(20);
     textAlign(CENTER);
-    text("Use WASD to move, mouse to aim, Space to shoot, P to spawn enemy ships", windowWidth/2, 150);
+    text("Use WASD to move, mouse to aim, Space to shoot, P to spawn enemy ships", width/2, 150);
     textSize(40);
-    text("Press any key to start", windowWidth/2, windowHeight/2);
+    text("Press any key to start", width/2, height/2);
     pop();
   }
 }
@@ -402,7 +439,6 @@ function checkCollision(bulletPos,rectPos,circleSize,rectWidth,rectHeight,angle)
       // circle hit bottom edge of rectangle
       return true;
     }
-
   } else {
     collisionSide = "";
   }
@@ -410,52 +446,7 @@ function checkCollision(bulletPos,rectPos,circleSize,rectWidth,rectHeight,angle)
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-}
-
-//evil overcomplicated bg class and function
-class TiledBg {
-  constructor(initX) {
-    this.timer = 0;
-    this.initX = initX;
-  }
-
-  draw() {
-    this.timer += 10;
-    push();
-    translate(this.timer, 0);
-    for (let x = this.initX; x < (windowWidth + this.initX); x += bgTile.width) {
-      for (let y = 0; y < windowHeight; y += bgTile.height) { 
-        image(bgTile, x, y);
-      }
-    }
-    pop();
-  }
-
-  getTimer() {
-    return this.timer;
-  }
-
-  resetTimer() {
-    this.timer = 0;
-  }
-
-}
-
-function drawBg() {
-  if (bgArray.length < 2) {
-    bgArray.push(new TiledBg(0));
-    bgArray.push(new TiledBg(-windowWidth+95));
-  }
-  if(bgArray[0].getTimer() > windowWidth-95) {
-    bgArray[0].resetTimer();
-  }
-  if (bgArray[1].getTimer() > windowWidth-95) {
-    bgArray[1].resetTimer();  
-  }
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+  initBg(); // reinitialize background columns on window resize
 }
 
 function resetGame()
@@ -463,8 +454,8 @@ function resetGame()
   player.maxHealth = 100;
   player.health = 100;
   score = 0;
-  player.pos.x = windowWidth/2;
-  player.pos.y = windowHeight/2+100;
+  player.pos.x = width/2;
+  player.pos.y = height/2+100;
   enemyShips = [];
   playerBullet = [];
   enemyBullet = [];
