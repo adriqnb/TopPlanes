@@ -1,4 +1,5 @@
 let showText = true;
+let paused = false;
 
 let player;
 let spritePlayer, spriteEnemy, spriteCrosshair, clouds, bgTile;
@@ -22,6 +23,7 @@ function preload() {
   spritePlayer = loadImage('assets/player.gif');
   spriteCrosshair = loadImage('assets/crosshair.gif');
   bgTile = loadImage('assets/bgTile.png');
+  pause = loadImage('assets/pause.png');
 
   shootSound = loadSound('assets/sounds/Pew.wav');
   shootSound.setVolume(bulletVolume);
@@ -318,6 +320,19 @@ function keyPressed()
     console.log("ran");
     enemyShips.push(new Enemy());
   }
+  if(keyCode === ESCAPE)
+  {
+    if (!paused) {
+      frameRate(0);
+      image(pause, windowWidth/2-256, windowHeight/2-256);
+      fill('rgba(0, 0, 0, 0.5)');
+      rect(0, 0, windowWidth, windowHeight);
+    } else {
+      frameRate(60);
+    }
+    paused = !paused;
+  }
+
 
   if(keyCode === 112){
     spriteEnemy = loadImage('libraries/enemy.png');
@@ -405,7 +420,7 @@ class TiledBg {
   }
 
   draw() {
-    this.timer += 0.75;
+    this.timer += 10;
     push();
     translate(this.timer, 0);
     for (let x = this.initX; x < (windowWidth + this.initX); x += bgTile.width) {
