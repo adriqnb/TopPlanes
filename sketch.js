@@ -136,7 +136,7 @@ function draw() {
 class Player {
   constructor() {
     this.squareSize = 50;
-    this.pos = createVector(width/2, height/2);
+    this.pos = createVector(width/2, height/2+100);
     this.vel = createVector(0, 0, 0);
     this.rectHeight = 25;
     this.rectWidth = 25;
