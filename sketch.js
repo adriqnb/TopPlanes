@@ -101,16 +101,16 @@ function draw() {
     push();
     shadow('rgba(0, 0, 0, 1)');
     fill(0);
-    rect(player.pos.x-35,player.pos.y+45,map(player.maxHealth,0,100,0,70),13); //max health
+    rect(player.pos.x-35,player.pos.y+((player.pos.y < height-60) ? 40 : -50), map(player.maxHealth,0,100,0,70),13); //max health
     pop();
     fill('rgba(0, 192, 35, 1)');
-    rect(player.pos.x-35,player.pos.y+45,map(player.health,0,100,0,70),13); //current health
+    rect(player.pos.x-35,player.pos.y+((player.pos.y < height-60) ? 40 : -50),map(player.health,0,100,0,70),13); //current health
     push()
     shadow('rgba(0, 0, 0, 1)');
     fill(255);
     textAlign(CENTER);
     textSize(15);
-    text(player.health+'/'+player.maxHealth,player.pos.x,player.pos.y+56.5)
+    text(player.health+'/'+player.maxHealth,player.pos.x,player.pos.y+((player.pos.y < height-60) ? 52 : -38))
     pop();
   } 
   
