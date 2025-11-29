@@ -1,13 +1,17 @@
 let showText = true;
+let paused = false;
 
 let player;
-let spritePlayer, spriteEnemy, spriteCrosshair;
+let spritePlayer, spriteEnemy, spriteCrosshair, clouds, bgTile;
 let enemyShips = [];
 let playerBullet = [];
-let timePassed;
+let lastShotTime;
 let death = false;
 let score = 0;
 let wave = 1;
+let bgVolume = 0.25;
+let bulletVolume = 0.05;
+let bgArray = [];
 
 // preload sound
 let shootSound;
@@ -19,13 +23,15 @@ function preload() {
   spriteEnemy = loadImage('assets/enemy.gif');
   spritePlayer = loadImage('assets/player.gif');
   spriteCrosshair = loadImage('assets/crosshair.gif');
+  bgTile = loadImage('assets/bgTile.png');
+  pause = loadImage('assets/pause.png');
 
   shootSound = loadSound('assets/sounds/Pew.wav');
-  shootSound.setVolume(0.2);
+  shootSound.setVolume(bulletVolume);
 
   bgMusic = loadSound('assets/sounds/menu_music_potentially.wav');
   // play background music in loop
-  bgMusic.setVolume(0.05);
+  bgMusic.setVolume(bgVolume);
   bgMusic.loop();
 }
 
@@ -36,128 +42,102 @@ function setup() {
   createCanvas(windowWidth,windowHeight);
   angleMode(DEGREES);
   player = new Player();
-  timePassed = millis();
+  lastShotTime = millis();
+  
+  initBg(); // initialize background columns
 }
 
 function draw() {
-  background('#0071a7');
+  drawBg();
   noCursor();
-
+  
   startMenu();
 
   backgroundMusicPlay();
 
-  if(player.health <= 0)
+  if (player.health <= 0)
     death = true;
   
-  if(death === false){
-  player.checkMovement();
-  player.checkShooting(); //rapid fire function
-  player.update();
-  player.display();
-  for(i=0; i<enemyShips.length; i++){
-    enemyShips[i].applyTanForce(.01);  
-    enemyShips[i].update();  
-    enemyShips[i].display();
-  }
-  for(i=0; i<playerBullet.length; i++){
-    const pb = playerBullet[i];
-    pb.applyTanForce(.1);
-    pb.update();
-    pb.display();
+  if (death === false){
+    player.checkMovement();
+    player.checkShooting(); //rapid fire function
+    player.update();
+    player.display();
+    for (i = 0; i < enemyShips.length; i++){
+      enemyShips[i].applyTanForce(.01);  
+      enemyShips[i].update();  
+      enemyShips[i].display();
+    } 
+
+    for (i = 0; i < playerBullet.length; i++){
+      const pb = playerBullet[i];
+      pb.applyTanForce(.1);
+      pb.update();
+      pb.display();
+
+      for (j = 0; j < enemyShips.length; j++){
+        if (playerBullet.length != 0 && checkCollision(pb.pos,enemyShips[j].pos,pb.size,enemyShips[j].rectWidth,enemyShips[j].rectHeight,pb.mainAngle))
+        {
+          enemyShips.splice(j,1);
+          j--;
+          playerBullet.splice(i,1);
+          i--;
+          score += 10;
+        }
+      }
+    }
+    for(i = 0; i < enemyBullet.length; i++){
+      enemyBullet[i].applyTanForce(.1);
+      enemyBullet[i].update();
+      enemyBullet[i].display();
+      if(checkCollision(enemyBullet[i].pos,player.pos,enemyBullet[i].size,player.rectWidth,player.rectHeight,player.mainAngle)) {
+        enemyBullet.splice(i,1);
+        i--;
+        player.health -= 10;
+      }
+    }
+    
+
+    //draw health bar
+    push();
+    shadow('rgba(0, 0, 0, 1)');
+    fill(0);
+    rect(player.pos.x-35,player.pos.y+((player.pos.y < height-60) ? 40 : -50), map(player.maxHealth,0,100,0,70),13); //max health
+    pop();
+    fill('rgba(0, 192, 35, 1)');
+    rect(player.pos.x-35,player.pos.y+((player.pos.y < height-60) ? 40 : -50),map(player.health,0,100,0,70),13); //current health
+    push()
+    shadow('rgba(0, 0, 0, 1)');
+    fill(255);
+    textAlign(CENTER);
+    textSize(15);
+    text(player.health+'/'+player.maxHealth,player.pos.x,player.pos.y+((player.pos.y < height-60) ? 52 : -38))
+    pop();
+  } 
   
-    for(j = 0; j<enemyShips.length; j++){
-    if(playerBullet.length != 0 && checkCollision(pb.pos,enemyShips[j].pos,pb.size,enemyShips[j].rectWidth,enemyShips[j].rectHeight,pb.mainAngle))
-    {
-      enemyShips.splice(j,1);
-      j--;
-      playerBullet.splice(i,1);
-      i--;
-      score += 10;
-    }
-    }
-  }
- for(i=0; i<enemyBullet.length; i++){
-    enemyBullet[i].applyTanForce(.1);
-    enemyBullet[i].update();
-    enemyBullet[i].display();
-    if(checkCollision(enemyBullet[i].pos,player.pos,enemyBullet[i].size,player.rectWidth,player.rectHeight,player.mainAngle)) {
-      console.log("death");
-      enemyBullet.splice(i,1);
-      i--
-      player.health -= 10;
-    }
-  }
-// clouds on window sides
-noStroke();
-fill(255, 255, 255, 185);
-// left side
-circle(-10,0,150);
-circle(-10,100,200);
-circle(-10,300,150);
-circle(-10,500,150);
-circle(-10,600,140);
-circle(-10,700,180);
-circle(-10,900,120);
-circle(-10,1100,160);
-circle(-10,1300,200);
-// right side
-circle(windowWidth+10,100,200);
-circle(windowWidth+10,200,150);
-circle(windowWidth+10,300,150);
-circle(windowWidth+10,500,180);
-circle(windowWidth+10,700,220);
-circle(windowWidth+10,900,160);
-circle(windowWidth+10,1100,200);
-// bottom side
-circle(0,windowHeight+10,150);
-circle(100,windowHeight+10,180);
-circle(200,windowHeight+10,200);
-circle(400,windowHeight+10,150);
-circle(600,windowHeight+10,180);
-circle(800,windowHeight+10,130);
-circle(1000,windowHeight+10,170);
-circle(1200,windowHeight+10,200);
-circle(1400,windowHeight+10,160);
-circle(1600,windowHeight+10,190);
-// top side
-circle(100,-10,200);
-circle(200,-10,130);
-circle(300,-10,150);
-circle(500,-10,200);
-circle(700,-10,180);
-circle(900,-10,160);
-circle(1100,-10,190);
-circle(1300,-10,140);
-circle(1500,-10,170);
-push()
-stroke(2);
-fill(255)
-rect(150,120,player.maxHealth,20); //max health
-pop()
-push()
-fill(41,255,82)
-rect(150,120,player.health,20); //current health
-fill(255);
-textSize(20);
-text(player.health+'/'+player.maxHealth,200,110,)
-pop()
-image(spriteCrosshair, mouseX-25.5, mouseY-13.5);
-  spriteCrosshair.delay(5)
-  }
   if(death === true)
   {
+    push();
+    shadow('rgba(0, 0, 0, 1)');
     fill(255)
-    text("Game Over! Press R to restart", windowWidth/2,windowHeight/2-100)
+    textSize(40);
+    textAlign(CENTER);
+    text("Game Over! Press R to restart", width/2,height/2-100)
     text("score: ")
+    pop();
   }
+  push();
+  shadow('rgba(0, 0, 0, 1)');
+  image(spriteCrosshair, mouseX-25.5, mouseY-13.5);
+  pop();
+  spriteCrosshair.delay(5);
 }
 
 
 class Player {
   constructor() {
     this.squareSize = 50;
-    this.pos = createVector(windowWidth/2, windowHeight/2+100);
+    this.pos = createVector(width/2, height/2+100);
     this.vel = createVector(0, 0, 0);
     this.rectHeight = 25;
     this.rectWidth = 25;
@@ -176,6 +156,7 @@ class Player {
   }
   display() {
     push()
+    shadow('rgba(0, 0, 0, 1)');
     translate(this.pos.x,this.pos.y);
     rotate(this.mainAngle -90);
     image(spritePlayer, -32, -32);
@@ -185,67 +166,64 @@ class Player {
   checkMovement()
   {
     //-------------WASD----------------
-    if(keyIsDown(87))
+    if (keyIsDown(87))
       this.vel.y -= .75;
     
-    if(keyIsDown(65)){
+    if (keyIsDown(65)){
       this.vel.x -= .75
     }
-    else if(keyIsDown(68)){
+    else if (keyIsDown(68)){
       this.vel.x +=.75;
     }
-    if(keyIsDown(83))
+
+    if (keyIsDown(83))
       this.vel.y +=.75
     //----------------------------------
     //          Afterburner
 
     // constrain player to window
-    this.pos.x = constrain(this.pos.x, 0, windowWidth);
-    this.pos.y = constrain(this.pos.y, 0, windowHeight);
+    this.pos.x = constrain(this.pos.x, 35, width-35);
+    this.pos.y = constrain(this.pos.y, 35, height-35);
   }
   
   checkShooting()
   {
     //----------------------------------
     //    Check for shooting input
-    if(keyIsDown(32) && (millis() > (timePassed + this.fireRate))) // (timePassed + interval between bullets)
+    if(keyIsDown(32) && (millis() > (lastShotTime + 150))) // (lastShotTime + interval between bullets)
     {
       console.log("Ran Bullet");
-      playerBullet.push(new bullet(true));
+      playerBullet.push(new Bullet(true));
 
       spriteCrosshair.reset();
 
       // audio play shoot sound
-      if (!shootSound.isPlaying()) {
-        shootSound.play();
-      } 
-      timePassed = millis();
+      shootSound.play();
+
+      lastShotTime = millis();
     }
   }
 
 }
 
-  
-
-
 class Enemy{
   constructor(){
      if (int(random(1,3)) === 1){  
         //ship appears on left or right
-        this.posY = random(0,windowHeight);
+        this.posY = random(0,height);
         if(int(random(1,3)) === 1)
           this.posX = 0;
         else
-          this.posX = windowWidth-50;
+          this.posX = width-50;
       }
       else
       {
         //ship appears on top or bottom
-        this.posX = random(0,windowWidth-50);
+        this.posX = random(0,width-50);
         if(int(random(1,3)) === 1)
           this.posY = 50;
         else
-          this.posY = windowHeight;
+          this.posY = height;
         console.log(this.posX);
         console.log(int(random(1,3)));
       }
@@ -272,6 +250,7 @@ class Enemy{
   }
   display() {
     push()
+    shadow('rgba(0, 0, 0, 1)');
     translate(this.pos.x,this.pos.y);
     rotate(this.mainAngle+270);
     image(spriteEnemy, -32, -32);
@@ -285,7 +264,7 @@ class Enemy{
          
   }
   
-  class bullet
+  class Bullet
   {
   constructor(playerOrEnemy){
     if(playerOrEnemy === true)
@@ -316,6 +295,7 @@ class Enemy{
   {
     push()
     //translate(this.pos.x,this.pos.y);
+    shadow('rgba(0, 0, 0, 1)');
     fill(this.color);
     
 
@@ -327,6 +307,45 @@ class Enemy{
     this.vel.y =(force*-sin(this.angle));
   }
     
+}
+
+class BgCol {
+  constructor(xpos) {
+    this.xpos = xpos;
+  }
+
+  display() {
+    // speed of background movement
+    this.xpos += 0.5;
+
+    for (let j = 0; j < height; j += bgTile.height) {
+      image(bgTile, this.xpos, j);
+    }
+    if (this.xpos >= width+bgTile.width) {
+      bgArray.shift();
+    }
+  }
+
+  getXpos() {
+    return this.xpos;
+  }
+}
+
+function drawBg() {
+  // draw background columns as each column moves off screen
+  for (let i = 0; i < bgArray.length; i++) {
+    bgArray[i].display();
+  }
+  if (bgArray[bgArray.length - 1].getXpos() > 0) {
+    bgArray.push(new BgCol(-bgTile.width+2));
+  }
+}
+
+function initBg() {
+  // initialize background columns
+  for (let i = width; i > -bgTile.width; i -= bgTile.width) {
+    bgArray.push(new BgCol(i));
+  }
 }
   
 function keyPressed()
@@ -342,18 +361,38 @@ function keyPressed()
     console.log("ran");
     enemyShips.push(new Enemy());
   }
+  if(keyCode === ESCAPE)
+  {
+    if (!paused) {
+      frameRate(0);
+      image(pause, width/2-256, height/2-256);
+      fill('rgba(0, 0, 0, 0.5)');
+      rect(0, 0, width, height);
+    } else {
+      frameRate(60);
+    }
+    paused = !paused;
+  }
+
+
+  if(keyCode === 112){
+    spriteEnemy = loadImage('libraries/enemy.png');
+  }
 }
 
 function startMenu()
 {
   // start game text
   if (showText) {
+    push();
+    shadow('rgba(0, 0, 0, 1)');
     fill(255);
     textSize(20);
     textAlign(CENTER);
-    text("Use WASD to move, mouse to aim, Space to shoot, P to spawn enemy ships", windowWidth/2, 150);
+    text("Use WASD to move, mouse to aim, Space to shoot, P to spawn enemy ships", width/2, 150);
     textSize(40);
-    text("Press any key to start", windowWidth/2, windowHeight/2);
+    text("Press any key to start", width/2, height/2);
+    pop();
   }
 }
 
@@ -361,7 +400,7 @@ function backgroundMusicPlay()
 {
   if (!showText) {
     if (!bgMusic.isPlaying()) {
-      bgMusic.setVolume(0.05);
+      bgMusic.setVolume(bgVolume);
       bgMusic.play();
     }
   }
@@ -370,30 +409,27 @@ function backgroundMusicPlay()
 function runBullet()
 {
   for(i = 0; i<enemyShips.length; i++)
-    enemyBullet.push(new bullet(false));
+    enemyBullet.push(new Bullet(false));
 }
 
-function checkCollision(bulletPos,RectPos,circleSize,rectWidth,rectHeight,angle)
+function checkCollision(bulletPos,rectPos,circleSize,rectWidth,rectHeight,angle)
 {
- circleX = bulletPos.x;
- circleY = bulletPos.y;
- rectX = RectPos.x;
- rectY = RectPos.y;
- circleR = circleSize*2;
- rectW = rectWidth;
- rectH = rectHeight;
+  circleX = bulletPos.x;
+  circleY = bulletPos.y;
+  rectX = rectPos.x;
+  rectY = rectPos.y;
+  circleR = circleSize*2;
+  rectW = rectWidth;
+  rectH = rectHeight;
 
- 
-
-if (
+  if (
     circleX + circleR > rectX && // right edge of circle > left edge of rectangle
     circleX - circleR < rectX + rectW && // left edge of circle < right edge of rectangle
     circleY + circleR > rectY && // bottom edge of circle > top edge of rectangle
     circleY - circleR < rectY + rectH
-  ) {
+  )
+  {
     // top edge of circle < bottom edge of rectangle
-    // collision detected
-    bg = color(0, 0, 255);
     if (circleX + circleR > rectX && circleX < rectX) {
       // circle hit left edge of rectangle
       return true;
@@ -408,10 +444,13 @@ if (
       return true;
     }
   } else {
-    // no collision
-    bg = color(120, 120, 120);
     collisionSide = "";
   }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  initBg(); // reinitialize background columns on window resize
 }
 
 function resetGame()
@@ -419,14 +458,20 @@ function resetGame()
   player.maxHealth = 100;
   player.health = 100;
   score = 0;
-  player.pos.x = windowWidth/2;
-  player.pos.y = windowHeight/2+100;
+  player.pos.x = width/2;
+  player.pos.y = height/2+100;
   enemyShips = [];
   playerBullet = [];
   enemyBullet = [];
 }
 
-function waveDiff(wave)
-{
-  
+function shadow(color, blurRadius = 10, offsetX = 0, offsetY = 0) {
+    drawingContext.shadowColor = color;
+    drawingContext.shadowBlur = blurRadius;
+    drawingContext.shadowOffsetX = offsetX;
+    drawingContext.shadowOffsetY = offsetY;
+}
+
+function noShadow() {
+    drawingContext.shadowColor = '#0000';
 }
