@@ -17,7 +17,8 @@ let bgArray = [];
 let shootSound;
 let bgMusic;
 
-function preload() {
+function preload() 
+{
   soundFormats('mp3', 'ogg', 'wav');
 
   spriteEnemy = loadImage('assets/enemy.gif');
@@ -36,9 +37,10 @@ function preload() {
 }
 
 let enemyBullet = [];
-let bulletInterval = setInterval(runBullet, 1000)
+let bulletInterval = setInterval(runBullet, 1000);
 
-function setup() {
+function setup() 
+{
   createCanvas(windowWidth,windowHeight);
   angleMode(DEGREES);
   player = new Player();
@@ -47,7 +49,8 @@ function setup() {
   initBg(); // initialize background columns
 }
 
-function draw() {
+function draw() 
+{
   drawBg();
   noCursor();
   
@@ -57,25 +60,29 @@ function draw() {
 
   if (player.health <= 0)
     death = true;
-  
-  if (death === false){
+
+  if (death === false)
+  {
     player.checkMovement();
     player.checkShooting(); //rapid fire function
     player.update();
     player.display();
-    for (i = 0; i < enemyShips.length; i++){
+    for (i = 0; i < enemyShips.length; i++)
+    {
       enemyShips[i].applyTanForce(.01);  
       enemyShips[i].update();  
       enemyShips[i].display();
     } 
 
-    for (i = 0; i < playerBullet.length; i++){
+    for (i = 0; i < playerBullet.length; i++)
+    {
       const pb = playerBullet[i];
       pb.applyTanForce(.1);
       pb.update();
       pb.display();
 
-      for (j = 0; j < enemyShips.length; j++){
+      for (j = 0; j < enemyShips.length; j++)
+      {
         if (playerBullet.length != 0 && checkCollision(pb.pos,enemyShips[j].pos,pb.size,enemyShips[j].rectWidth,enemyShips[j].rectHeight,pb.mainAngle))
         {
           enemyShips.splice(j,1);
@@ -86,11 +93,14 @@ function draw() {
         }
       }
     }
-    for(i = 0; i < enemyBullet.length; i++){
+
+    for(i = 0; i < enemyBullet.length; i++)
+    {
       enemyBullet[i].applyTanForce(.1);
       enemyBullet[i].update();
       enemyBullet[i].display();
-      if(checkCollision(enemyBullet[i].pos,player.pos,enemyBullet[i].size,player.rectWidth,player.rectHeight,player.mainAngle)) {
+      if(checkCollision(enemyBullet[i].pos,player.pos,enemyBullet[i].size,player.rectWidth,player.rectHeight,player.mainAngle)) 
+      {
         enemyBullet.splice(i,1);
         i--;
         player.health -= 10;
@@ -106,12 +116,12 @@ function draw() {
     pop();
     fill('rgba(0, 192, 35, 1)');
     rect(player.pos.x-35,player.pos.y+((player.pos.y < height-60) ? 40 : -50),map(player.health,0,100,0,70),13); //current health
-    push()
+    push();
     shadow('rgba(0, 0, 0, 1)');
     fill(255);
     textAlign(CENTER);
     textSize(15);
-    text(player.health+'/'+player.maxHealth,player.pos.x,player.pos.y+((player.pos.y < height-60) ? 52 : -38))
+    text(player.health+'/'+player.maxHealth,player.pos.x,player.pos.y+((player.pos.y < height-60) ? 52 : -38));
     pop();
   } 
   
@@ -119,13 +129,15 @@ function draw() {
   {
     push();
     shadow('rgba(0, 0, 0, 1)');
-    fill(255)
+    fill(255);
     textSize(40);
     textAlign(CENTER);
-    text("Game Over! Press R to restart", width/2,height/2-100)
-    text("score: ")
+    text("Game Over! Press R to restart", width/2,height/2-100);
+    text("score: ");
     pop();
   }
+
+  //draw crosshair
   push();
   shadow('rgba(0, 0, 0, 1)');
   image(spriteCrosshair, mouseX-25.5, mouseY-13.5);
@@ -134,8 +146,10 @@ function draw() {
 }
 
 
-class Player {
-  constructor() {
+class Player 
+{
+  constructor() 
+  {
     this.squareSize = 50;
     this.pos = createVector(width/2, height/2+100);
     this.vel = createVector(0, 0, 0);
@@ -145,39 +159,43 @@ class Player {
     this.health = 100;
     this.maxHealth = 100;
     this.fireRate = 150;
-    this.healOnKill
-    this.defence
+    this.healOnKill;
+    this.defense;
   }
-  update() {
+  update() 
+  {
     this.mainAngle = atan2(mouseY - this.pos.y, mouseX - this.pos.x);
     this.vel.x *=(1-this.drag);
     this.vel.y *=(1-this.drag);
     this.pos.add(this.vel);
   }
-  display() {
-    push()
+  display() 
+  {
+    push();
     shadow('rgba(0, 0, 0, 1)');
     translate(this.pos.x,this.pos.y);
     rotate(this.mainAngle -90);
     image(spritePlayer, -32, -32);
-    pop()
+    pop();
   }
  
   checkMovement()
   {
     //-------------WASD----------------
-    if (keyIsDown(87))
+    if (keyIsDown(87)) // W
       this.vel.y -= .75;
     
-    if (keyIsDown(65)){
-      this.vel.x -= .75
+    if (keyIsDown(65)) // A
+    {
+      this.vel.x -= .75;
     }
-    else if (keyIsDown(68)){
+    else if (keyIsDown(68)) // S
+    {
       this.vel.x +=.75;
     }
 
-    if (keyIsDown(83))
-      this.vel.y +=.75
+    if (keyIsDown(83)) // D
+      this.vel.y +=.75;
     //----------------------------------
     //          Afterburner
 
@@ -206,27 +224,32 @@ class Player {
 
 }
 
-class Enemy{
-  constructor(){
-     if (int(random(1,3)) === 1){  
-        //ship appears on left or right
-        this.posY = random(0,height);
-        if(int(random(1,3)) === 1)
-          this.posX = 0;
-        else
-          this.posX = width-50;
-      }
+class Enemy
+{
+  constructor()
+  {
+    if (int(random(1,3)) === 1)
+    {  
+      //ship appears on left or right
+      this.posY = random(0,height);
+      if(int(random(1,3)) === 1)
+        this.posX = 0;
       else
-      {
-        //ship appears on top or bottom
-        this.posX = random(0,width-50);
-        if(int(random(1,3)) === 1)
-          this.posY = 50;
-        else
-          this.posY = height;
-        console.log(this.posX);
-        console.log(int(random(1,3)));
-      }
+        this.posX = width-50;
+    }
+    else
+    {
+      //ship appears on top or bottom
+      this.posX = random(0,width-50);
+
+      if(int(random(1,3)) === 1)
+        this.posY = 50;
+      else
+        this.posY = height;
+
+      console.log(this.posX);
+      console.log(int(random(1,3)));
+    }
 
     this.squareSize = 50;
     this.pos = createVector(this.posX, this.posY);
@@ -239,7 +262,8 @@ class Enemy{
     this.mainAngle = atan2(player.pos.y - this.pos.y, player.pos.x - this.pos.x);
 
   }
-  update() {
+  update() 
+  {
     // recalc angle toward player each frame
     this.mainAngle = atan2(player.pos.y - this.pos.y, player.pos.x - this.pos.x);
     // apply thrust toward player, then drag, then move
@@ -248,7 +272,8 @@ class Enemy{
     this.vel.y *=(1-this.drag);
     this.pos.add(this.vel);
   }
-  display() {
+  display() 
+  {
     push()
     shadow('rgba(0, 0, 0, 1)');
     translate(this.pos.x,this.pos.y);
@@ -256,7 +281,8 @@ class Enemy{
     image(spriteEnemy, -32, -32);
     pop()
   }
-  applyTanForce(force){
+  applyTanForce(force)
+  {
     // add force in the direction of mainAngle (negative to point toward player)
     this.vel.x += (force * cos(this.mainAngle));
     this.vel.y += (force * sin(this.mainAngle));
@@ -266,7 +292,8 @@ class Enemy{
   
   class Bullet
   {
-  constructor(playerOrEnemy){
+  constructor(playerOrEnemy)
+  {
     if(playerOrEnemy === true)
     {
       this.color = ('#ffffff');
@@ -302,7 +329,8 @@ class Enemy{
     circle(this.pos.x,this.pos.y,this.size);
     pop();
   }
-  applyTanForce(force) {
+  applyTanForce(force) 
+  {
     this.vel.x =(force*-cos(this.angle));
     this.vel.y =(force*-sin(this.angle));
   }
@@ -310,47 +338,56 @@ class Enemy{
 }
 
 class BgCol {
-  constructor(xpos) {
+  constructor(xpos) 
+  {
     this.xpos = xpos;
   }
 
   display() {
     // speed of background movement
-    this.xpos += 0.5;
+    this.xpos += map(cos(frameCount), 0, 0.5, 0.5, 1);
 
-    for (let j = 0; j < height; j += bgTile.height) {
+    for (let j = 0; j < height; j += bgTile.height) 
+    {
       image(bgTile, this.xpos, j);
     }
-    if (this.xpos >= width+bgTile.width) {
+    if (this.xpos >= width+bgTile.width) 
+    {
       bgArray.shift();
     }
   }
 
-  getXpos() {
+  getXpos() 
+  {
     return this.xpos;
   }
 }
 
 function drawBg() {
   // draw background columns as each column moves off screen
-  for (let i = 0; i < bgArray.length; i++) {
+  for (let i = 0; i < bgArray.length; i++) 
+  {
     bgArray[i].display();
   }
-  if (bgArray[bgArray.length - 1].getXpos() > 0) {
+  if (bgArray[bgArray.length - 1].getXpos() > 0)
+  {
     bgArray.push(new BgCol(-bgTile.width+2));
   }
 }
 
 function initBg() {
   // initialize background columns
-  for (let i = width; i > -bgTile.width; i -= bgTile.width) {
+  for (let i = width; i > -bgTile.width; i -= bgTile.width)
+  {
     bgArray.push(new BgCol(i));
   }
 }
   
 function keyPressed()
 {
-  showText = false;
+  if (keyCode !== ESCAPE)
+    showText = false;
+
   if((key === "r" || key === "R") && death === true)
   {
     resetGame();
@@ -363,19 +400,12 @@ function keyPressed()
   }
   if(keyCode === ESCAPE)
   {
-    if (!paused) {
-      frameRate(0);
-      image(pause, width/2-256, height/2-256);
-      fill('rgba(0, 0, 0, 0.5)');
-      rect(0, 0, width, height);
-    } else {
-      frameRate(60);
-    }
-    paused = !paused;
+    pauseGame();
   }
 
 
-  if(keyCode === 112){
+  if(keyCode === 112)
+  {
     spriteEnemy = loadImage('libraries/enemy.png');
   }
 }
@@ -383,7 +413,8 @@ function keyPressed()
 function startMenu()
 {
   // start game text
-  if (showText) {
+  if (showText) 
+  {
     push();
     shadow('rgba(0, 0, 0, 1)');
     fill(255);
@@ -398,8 +429,10 @@ function startMenu()
 
 function backgroundMusicPlay()
 {
-  if (!showText) {
-    if (!bgMusic.isPlaying()) {
+  if (!showText) 
+  {
+    if (!bgMusic.isPlaying()) 
+    {
       bgMusic.setVolume(bgVolume);
       bgMusic.play();
     }
@@ -430,27 +463,76 @@ function checkCollision(bulletPos,rectPos,circleSize,rectWidth,rectHeight,angle)
   )
   {
     // top edge of circle < bottom edge of rectangle
-    if (circleX + circleR > rectX && circleX < rectX) {
+    if (circleX + circleR > rectX && circleX < rectX) 
+    {
       // circle hit left edge of rectangle
       return true;
-    } else if (circleX - circleR < rectX + rectW && circleX > rectX + rectW) {
+    } 
+    else if (circleX - circleR < rectX + rectW && circleX > rectX + rectW) 
+    {
       // circle hit right edge of rectangle
       return true;
-    } else if (circleY + circleR > rectY && circleY < rectY) {
+    } 
+    else if (circleY + circleR > rectY && circleY < rectY)  
+    {
       // circle hit top edge of rectangle
       return true;
-    } else if (circleY - circleR < rectY + rectH && circleY > rectY + rectH) {
+    } 
+    else if (circleY - circleR < rectY + rectH && circleY > rectY + rectH) 
+    {
       // circle hit bottom edge of rectangle
       return true;
     }
-  } else {
+  } 
+  else 
+  {
     collisionSide = "";
   }
 }
 
-function windowResized() {
+function windowResized() 
+{
   resizeCanvas(windowWidth, windowHeight);
-  initBg(); // reinitialize background columns on window resize
+  
+  // reinitialize/redraw background columns on window resize
+  initBg(); 
+  draw();
+  
+  // ensure the game stays paused on resize
+  /*
+  *  small bug - when actively resizing the game continues
+  *  to run, meaning enemies can attack you and you can die
+  *  if you just keep resizing
+  */
+  paused = false;
+  pauseGame();
+}
+
+function pauseGame() {
+
+  if (!paused && !showText) 
+  {
+    frameRate(0); // freeze the game
+    bgMusic.pause(); // pause background music
+    
+    // display pause overlay
+    push();
+    imageMode(CENTER);
+    image(pause, width/2, height/2, height/4, height/4);
+    pop();
+    fill('rgba(0, 0, 0, 0.5)');
+    rect(0, 0, width, height);
+
+    cursor(ARROW); //show cursor
+
+  } 
+  else if (paused && !showText)
+  {
+    frameRate(60); // resume the game
+    bgMusic.play(); // resume background music
+    noCursor(); //hide cursor
+  }
+  paused = !paused;
 }
 
 function resetGame()
@@ -465,13 +547,10 @@ function resetGame()
   enemyBullet = [];
 }
 
-function shadow(color, blurRadius = 10, offsetX = 0, offsetY = 0) {
-    drawingContext.shadowColor = color;
-    drawingContext.shadowBlur = blurRadius;
-    drawingContext.shadowOffsetX = offsetX;
-    drawingContext.shadowOffsetY = offsetY;
-}
-
-function noShadow() {
-    drawingContext.shadowColor = '#0000';
+function shadow(color, blurRadius = 10, offsetX = 0, offsetY = 0) 
+{
+  drawingContext.shadowColor = color;
+  drawingContext.shadowBlur = blurRadius;
+  drawingContext.shadowOffsetX = offsetX;
+  drawingContext.shadowOffsetY = offsetY;
 }
