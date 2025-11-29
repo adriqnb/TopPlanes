@@ -7,6 +7,7 @@ let playerBullet = [];
 let timePassed;
 let death = false;
 let score = 0;
+let wave = 1;
 
 // preload sound
 let shootSound;
@@ -132,14 +133,14 @@ circle(1500,-10,170);
 push()
 stroke(2);
 fill(255)
-rect(150,100,player.maxHealth,20); //max health
+rect(150,120,player.maxHealth,20); //max health
 pop()
 push()
 fill(41,255,82)
-rect(150,100,player.health,20); //current health
+rect(150,120,player.health,20); //current health
 fill(255);
 textSize(20);
-text(player.health+'/'+player.maxHealth,200,90,)
+text(player.health+'/'+player.maxHealth,200,110,)
 pop()
 image(spriteCrosshair, mouseX-25.5, mouseY-13.5);
   spriteCrosshair.delay(5)
@@ -163,6 +164,9 @@ class Player {
     this.drag = 0.1;
     this.health = 100;
     this.maxHealth = 100;
+    this.fireRate = 150;
+    this.healOnKill
+    this.defence
   }
   update() {
     this.mainAngle = atan2(mouseY - this.pos.y, mouseX - this.pos.x);
@@ -204,7 +208,7 @@ class Player {
   {
     //----------------------------------
     //    Check for shooting input
-    if(keyIsDown(32) && (millis() > (timePassed + 150))) // (timePassed + interval between bullets)
+    if(keyIsDown(32) && (millis() > (timePassed + this.fireRate))) // (timePassed + interval between bullets)
     {
       console.log("Ran Bullet");
       playerBullet.push(new bullet(true));
@@ -420,4 +424,9 @@ function resetGame()
   enemyShips = [];
   playerBullet = [];
   enemyBullet = [];
+}
+
+function waveDiff(wave)
+{
+  
 }
