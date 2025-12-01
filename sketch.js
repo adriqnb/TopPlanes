@@ -13,6 +13,9 @@ let bgVolume = 0.25;
 let bulletVolume = 0.05;
 let bgArray = [];
 
+let smallHealthPacks = [];
+let healthScore = 0;
+
 // preload sound
 let shootSound;
 let bgMusic;
@@ -90,6 +93,8 @@ function draw()
           playerBullet.splice(i,1);
           i--;
           score += 10;
+
+          healthScore += 10;
         }
       }
     }
@@ -123,6 +128,36 @@ function draw()
     textSize(15);
     text(player.health+'/'+player.maxHealth,player.pos.x,player.pos.y+((player.pos.y < height-60) ? 52 : -38));
     pop();
+
+    // spawn health packs upon enemy kills at latest enemy killed's location
+    if (healthScore % 50 === 0 && healthScore != 0 && smallHealthPacks.length < 1) 
+    {
+      let hpX = enemyShips.length > 0 ? enemyShips[0].pos.x : random(50, width - 50);
+      let hpY = enemyShips.length > 0 ? enemyShips[0].pos.y : random(50, height - 50);
+      smallHealthPacks.push(new smallHealthPack(hpX, hpY));
+    }
+
+    // draw health packs
+    for (let h = 0; h < smallHealthPacks.length; h++) 
+    {
+      smallHealthPacks[h].display();
+      if (checkHealthPackCollision(smallHealthPacks[h].getPos(), player.pos, player.rectWidth, player.rectHeight, player.mainAngle)) 
+      {
+        smallHealthPacks.splice(h, 1);
+        smallHPPickup();
+        h--;
+
+        healthScore = 0; // reset health score to prevent multiple spawns
+      }
+    }
+
+    // remove health pack after short duration
+    if (smallHealthPacks.length > 0) 
+    {
+      setTimeout(() => {
+        smallHealthPacks.shift();
+      }, 10000); // remove after 10 seconds
+    }
   } 
   
   if(death === true)
@@ -363,6 +398,38 @@ class BgCol {
   }
 }
 
+// small health pack drops during gameplay
+class smallHealthPack {
+  constructor(xpos, ypos) {
+    this.pos = createVector(xpos, ypos);
+    this.size = 20;
+  }
+
+  display() {
+    push();
+    shadow('rgba(0, 0, 0, 1)');
+    fill('rgba(255, 0, 0, 1)');
+    rect(this.pos.x, this.pos.y, this.size, this.size);
+    shadow(0,0,0,0);
+    noStroke();
+    fill('rgba(255, 255, 255, 1)');
+    rect(this.pos.x+7, this.pos.y+2, 5, 15);
+    rect(this.pos.x+2, this.pos.y+7, 15, 5);
+    pop();
+  }
+
+  getPos() {
+    return this.pos;
+  }
+}
+// small health pack pickup
+function smallHPPickup()
+{
+  player.health += 20;
+  if (player.health > player.maxHealth)
+    player.health = player.maxHealth;
+}
+
 function drawBg() {
   // draw background columns as each column moves off screen
   for (let i = 0; i < bgArray.length; i++) 
@@ -445,6 +512,51 @@ function runBullet()
     enemyBullet.push(new Bullet(false));
 }
 
+function checkHealthPackCollision(healthPos,rectPos,rectWidth,rectHeight,angle)
+{
+  rectX = rectPos.x;
+  rectY = rectPos.y;
+  rectW = rectWidth;
+  rectH = rectHeight;
+  hPackW = 20;
+  hPackH = 20;
+  hPackX = healthPos.x;
+  hPackY = healthPos.y;
+  if (
+    rectX + rectY > hPackX && // right edge of circle > left edge of rectangle
+    rectX - rectY < hPackX + hPackW && // left edge of circle < right edge of rectangle
+    rectY + rectX > hPackY && // bottom edge of circle > top edge of rectangle
+    rectY - rectX < hPackY + hPackH
+  )
+  {
+    // top edge of health < bottom edge of rectangle
+    if (hPackX + hPackW > rectX && hPackX < rectX) 
+    {
+      // health hit left edge of rectangle
+      return true;
+    }
+    else if (hPackX - hPackW < rectX + rectW && hPackX > rectX + rectW)
+    {
+      // health hit right edge of rectangle
+      return true;
+    }
+    else if (hPackY + hPackH > rectY && hPackY < rectY)
+    {
+      // health hit top edge of rectangle
+      return true;
+    }
+    else if (hPackY - hPackH < rectY + rectH && hPackY > rectY + rectH)
+    {
+      // health hit bottom edge of rectangle
+      return true;
+    }
+  }
+  else 
+  {
+    collisionSide = "";
+  }
+}
+
 function checkCollision(bulletPos,rectPos,circleSize,rectWidth,rectHeight,angle)
 {
   circleX = bulletPos.x;
@@ -454,6 +566,10 @@ function checkCollision(bulletPos,rectPos,circleSize,rectWidth,rectHeight,angle)
   circleR = circleSize*2;
   rectW = rectWidth;
   rectH = rectHeight;
+  hPackW = 20;
+  hPackH = 20;
+  //hPackX = healthPos.x;
+  //hPackY = healthPos.y;
 
   if (
     circleX + circleR > rectX && // right edge of circle > left edge of rectangle
@@ -488,6 +604,40 @@ function checkCollision(bulletPos,rectPos,circleSize,rectWidth,rectHeight,angle)
   {
     collisionSide = "";
   }
+// health pack collision
+  /*if (
+    rectX + rectY > hPackX && // right edge of circle > left edge of rectangle
+    rectX - rectY < hPackX + hPackW && // left edge of circle < right edge of rectangle
+    rectY + rectX > hPackY && // bottom edge of circle > top edge of rectangle
+    rectY - rectX < hPackY + hPackH
+  )
+  {
+    // top edge of health < bottom edge of rectangle
+    if (hPackX + hPackW > rectX && hPackX < rectX) 
+    {
+      // health hit left edge of rectangle
+      return true;
+    } 
+    else if (hPackX - hPackW < rectX + rectW && hPackX > rectX + rectW) 
+    {
+      // health hit right edge of rectangle
+      return true;
+    } 
+    else if (hPackY + hPackH > rectY && hPackY < rectY)  
+    {
+      // health hit top edge of rectangle
+      return true;
+    } 
+    else if (hPackY - hPackH < rectY + rectH && hPackY > rectY + rectH) 
+    {
+      // health hit bottom edge of rectangle
+      return true;
+    }
+  } 
+  else 
+  {
+    collisionSide = "";
+  }*/
 }
 
 function windowResized() 
