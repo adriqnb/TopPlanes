@@ -138,7 +138,7 @@ function draw()
     push();
     fill(255);
     textSize(30);
-    text(wave, windowWidth/20, windowHeight/10);
+    text("Wave "+wave, windowWidth/20, windowHeight/10);
     pop();
   if(start === true)
   {
@@ -590,6 +590,8 @@ function resetGame()
   enemyShips = [];
   playerBullet = [];
   enemyBullet = [];
+  wave = 1;
+  enemyCount = 3;
 }
 
 function shadow(color, blurRadius = 10, offsetX = 0, offsetY = 0) 
@@ -611,7 +613,7 @@ function endWave()
   playerBullet = [];
   enemyBullet = [];
   enemyKills = 0;
-  enemyCount = ((enemyCount*2));
+  enemyCount = ((3)+((wave-1)*2));
   start = false;
 }
 function startWave()
