@@ -180,7 +180,6 @@ class Player
 {
   constructor() 
   {
-    this.squareSize = 50;
     this.pos = createVector(width/2, height/2+100);
     this.vel = createVector(0, 0, 0);
     this.rectHeight = 25;
@@ -206,11 +205,6 @@ class Player
     translate(this.pos.x,this.pos.y);
     rotate(this.mainAngle -90);
     image(spritePlayer, -32, -32);
-    pop();
-
-    push();
-    fill('rgba(255,0,0,1)')
-    rect(this.rectWidth,this.rectHeight);
     pop();
   }
  
@@ -286,7 +280,6 @@ class Enemy
       console.log(int(random(1,3)));
     }
 
-    this.squareSize = 50;
     this.pos = createVector(this.posX, this.posY);
     this.vel = createVector(.001, .001, 0);
     this.flightForce = random(0,0.008);
@@ -297,6 +290,7 @@ class Enemy
     this.mainAngle = atan2(player.pos.y - this.pos.y, player.pos.x - this.pos.x);
 
   }
+
   update() 
   {
     // recalc angle toward player each frame
@@ -307,6 +301,7 @@ class Enemy
     this.vel.y *=(1-this.drag);
     this.pos.add(this.vel);
   }
+
   display() 
   {
     push()
@@ -316,6 +311,7 @@ class Enemy
     image(spriteEnemy, -32, -32);
     pop()
   }
+
   applyTanForce(force)
   {
     // add force in the direction of mainAngle (negative to point toward player)
@@ -323,10 +319,10 @@ class Enemy
     this.vel.y += (force * sin(this.mainAngle));
   }
          
-  }
+}
   
-  class Bullet
-  {
+class Bullet
+{
   constructor(playerOrEnemy)
   {
     if(playerOrEnemy === true)
@@ -379,13 +375,15 @@ class Enemy
     
 }
 
-class BgCol {
+class BgCol 
+{
   constructor(xpos) 
   {
     this.xpos = xpos;
   }
 
-  display() {
+  display() 
+  {
     // speed of background movement
     this.xpos += map(cos(frameCount), 0, 0.5, 0.5, 1);
 
@@ -494,8 +492,8 @@ function checkCollision(bulletPos,rectPos,circleSize,rectWidth,rectHeight,angle)
 {
   circleX = bulletPos.x;
   circleY = bulletPos.y;
-  rectX = rectPos.x;
-  rectY = rectPos.y;
+  rectX = rectPos.x - rectWidth/2;
+  rectY = rectPos.y - rectHeight/2;
   circleR = circleSize*2;
   rectW = rectWidth;
   rectH = rectHeight;
@@ -619,7 +617,7 @@ function endWave()
 function startWave()
 {
   if(started === false){
-spawnTime = millis();
-started = true;
+    spawnTime = millis();
+    started = true;
   }
 }
