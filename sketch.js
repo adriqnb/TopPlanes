@@ -12,6 +12,11 @@ let wave = 1;
 let bgVolume = 0.25;
 let bulletVolume = 0.05;
 let bgArray = [];
+let enemyCount = 3;
+let start = false;
+let enemyKills = 0;
+let spawnTime;
+let started = false;
 
 // preload sound
 let shootSound;
@@ -90,6 +95,7 @@ function draw()
           playerBullet.splice(i,1);
           i--;
           score += 10;
+          enemyKills += 1;
         }
       }
     }
@@ -123,6 +129,24 @@ function draw()
     textSize(15);
     text(player.health+'/'+player.maxHealth,player.pos.x,player.pos.y+((player.pos.y < height-60) ? 52 : -38));
     pop();
+    push();
+    fill(255);
+    textSize(30);
+    text(wave, windowWidth/20, windowHeight/10);
+    pop();
+  if(start === true)
+  {
+    startWave();
+    if((millis() > (spawnTime + 1000)) && ((enemyCount-enemyKills) > (enemyShips.length))){
+    spawnEnemy();
+    spawnTime = millis();
+    }
+    if(enemyCount <= enemyKills)
+    {
+      wave++;
+      endWave();
+    }
+  }
   } 
   
   if(death === true)
@@ -403,6 +427,9 @@ function keyPressed()
     pauseGame();
   }
 
+  if(keyCode === ENTER){
+   start = true;
+  }
 
   if(keyCode === 112)
   {
@@ -553,4 +580,26 @@ function shadow(color, blurRadius = 10, offsetX = 0, offsetY = 0)
   drawingContext.shadowBlur = blurRadius;
   drawingContext.shadowOffsetX = offsetX;
   drawingContext.shadowOffsetY = offsetY;
+}
+
+
+function spawnEnemy()
+{
+  enemyShips.push(new Enemy());
+}
+function endWave()
+{
+  enemyShips = [];
+  playerBullet = [];
+  enemyBullet = [];
+  enemyKills = 0;
+  enemyCount = ((enemyCount*2));
+  start = false;
+}
+function startWave()
+{
+  if(started === false){
+spawnTime = millis();
+started = true;
+  }
 }
