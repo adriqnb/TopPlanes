@@ -465,7 +465,7 @@ function startMenu()
     fill(255);
     textSize(20);
     textAlign(CENTER);
-    text("Use WASD to move, mouse to aim, Space to shoot, P to spawn enemy ships", width/2, 150);
+    text("Use WASD to move, mouse to aim, Space to shoot, Enter to start wave.", width/2, 150);
     textSize(40);
     text("Press any key to start", width/2, height/2);
     pop();
