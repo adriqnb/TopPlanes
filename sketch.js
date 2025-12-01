@@ -96,17 +96,21 @@ function draw()
 
     for(i = 0; i < enemyBullet.length; i++)
     {
-      enemyBullet[i].applyTanForce(.1);
-      enemyBullet[i].update();
-      enemyBullet[i].display();
-      if(checkCollision(enemyBullet[i].pos,player.pos,enemyBullet[i].size,player.rectWidth,player.rectHeight,player.mainAngle)) 
+      const eb = enemyBullet[i];
+      eb.applyTanForce(.1);
+      eb.update();
+      eb.display();
+      if(checkCollision(eb.pos,player.pos,eb.size,player.rectWidth,player.rectHeight,player.mainAngle)) 
       {
         enemyBullet.splice(i,1);
         i--;
         player.health -= 10;
       }
     }
-    
+    //draw FPS counter
+    push();
+    text(`${frameRate()}`, 20, 20);
+    pop();
 
     //draw health bar
     push();
@@ -114,8 +118,10 @@ function draw()
     fill(0);
     rect(player.pos.x-35,player.pos.y+((player.pos.y < height-60) ? 40 : -50), map(player.maxHealth,0,100,0,70),13); //max health
     pop();
+    push();
     fill('rgba(0, 192, 35, 1)');
     rect(player.pos.x-35,player.pos.y+((player.pos.y < height-60) ? 40 : -50),map(player.health,0,100,0,70),13); //current health
+    pop();
     push();
     shadow('rgba(0, 0, 0, 1)');
     fill(255);
@@ -176,6 +182,11 @@ class Player
     translate(this.pos.x,this.pos.y);
     rotate(this.mainAngle -90);
     image(spritePlayer, -32, -32);
+    pop();
+
+    push();
+    fill('rgba(255,0,0,1)')
+    rect(this.rectWidth,this.rectHeight);
     pop();
   }
  
@@ -302,6 +313,7 @@ class Enemy
       this.pos = createVector(player.pos.x,player.pos.y);
       this.vel = createVector(0, 0);
       this.size = 5;
+      this.arr = playerBullet;
     }
     else
     {
@@ -311,18 +323,24 @@ class Enemy
       this.pos = createVector(enemyShips[i].pos.x,enemyShips[i].pos.y);
       this.vel = createVector(0, 0);
       this.size = 5;
+      this.arr = enemyBullet;
     }
   }
   update()
   {
     this.applyTanForce(this.flightForce);
     this.pos.add(this.vel);
+
+    if (this.pos.x >= width || this.pos.x <= 0 || this.pos.y >= height || this.pos.y <= 0)
+    {
+      this.arr.splice(i,1);
+      console.log(enemyBullet.length)
+    }
   }
   display()
   {
     push()
     //translate(this.pos.x,this.pos.y);
-    shadow('rgba(0, 0, 0, 1)');
     fill(this.color);
     
 
