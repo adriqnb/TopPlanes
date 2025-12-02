@@ -74,6 +74,7 @@ function setup()
 
 function draw() 
 {
+  background('rgba(0, 118, 122, 1)');
   drawBg();
   noCursor();
   
@@ -141,7 +142,7 @@ function draw()
     }
     //draw FPS counter
     push();
-    text(`${frameRate()}`, 20, 20);
+    text(`${Math.trunc(frameRate())}`, 20, 30);
     pop();
 
     //draw health bar
@@ -167,7 +168,7 @@ function draw()
     {
       let hpX = enemyShips.length > 0 ? enemyShips[0].pos.x : random(50, width - 50);
       let hpY = enemyShips.length > 0 ? enemyShips[0].pos.y : random(50, height - 50);
-      smallHealthPacks.push(new smallHealthPack(hpX, hpY));
+      smallHealthPacks.push(new SmallHealthPack(hpX, hpY));
     }
 
     // draw health packs
@@ -194,7 +195,8 @@ function draw()
     push();
     fill(255);
     textSize(30);
-    text("Wave "+wave, windowWidth/20, windowHeight/10);
+    shadow('rgba(0, 0, 0, 1)');
+    text("Wave " + wave, windowWidth/20, windowHeight/10);
     pop();
   if(start === true)
   {
@@ -425,6 +427,7 @@ class Bullet
   {
     push()
     //translate(this.pos.x,this.pos.y);
+    strokeWeight(2);
     fill(this.color);
     
 
@@ -468,13 +471,16 @@ class BgCol
 }
 
 // small health pack drops during gameplay
-class smallHealthPack {
-  constructor(xpos, ypos) {
+class SmallHealthPack 
+{
+  constructor(xpos, ypos) 
+  {
     this.pos = createVector(xpos, ypos);
     this.size = 20;
   }
 
-  display() {
+  display() 
+  {
     push();
     shadow('rgba(0, 0, 0, 1)');
     fill('rgba(255, 0, 0, 1)');
@@ -487,7 +493,8 @@ class smallHealthPack {
     pop();
   }
 
-  getPos() {
+  getPos() 
+  {
     return this.pos;
   }
 }
@@ -503,7 +510,8 @@ function smallHPPickup()
     player.health = player.maxHealth;
 }
 
-function drawBg() {
+function drawBg() 
+{
   // draw background columns as each column moves off screen
   for (let i = 0; i < bgArray.length; i++) 
   {
@@ -515,7 +523,8 @@ function drawBg() {
   }
 }
 
-function initBg() {
+function initBg() 
+{
   // initialize background columns
   for (let i = width; i > -bgTile.width; i -= bgTile.width)
   {
@@ -698,8 +707,8 @@ function windowResized()
   pauseGame();
 }
 
-function pauseGame() {
-
+function pauseGame() 
+{
   if (!paused && !showText) 
   {
     frameRate(0); // freeze the game
@@ -737,6 +746,7 @@ function resetGame()
   enemyBullet = [];
   wave = 1;
   enemyCount = 3;
+  enemyKills = 0;
 }
 
 function shadow(color, blurRadius = 10, offsetX = 0, offsetY = 0) 
