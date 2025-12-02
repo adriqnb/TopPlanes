@@ -9,8 +9,9 @@ let lastShotTime;
 let death = false;
 let score = 0;
 let wave = 1;
-let bgVolume = 0.25;
+let bgVolume = 0.18;
 let bulletVolume = 0.05;
+let sfxVolume = 0.1;
 let bgArray = [];
 
 let smallHealthPacks = [];
@@ -23,6 +24,10 @@ let started = false;
 
 // preload sound
 let shootSound;
+let playerDamageSound;
+let playerDeathSound;
+let enemyDeathSound;
+let healthPackSound;
 let bgMusic;
 
 function preload() 
@@ -37,6 +42,16 @@ function preload()
 
   shootSound = loadSound('assets/sounds/Pew.wav');
   shootSound.setVolume(bulletVolume);
+  playerDamageSound = loadSound('assets/sounds/player_damage.wav');
+  playerDamageSound.setVolume(bulletVolume);
+
+  healthPackSound = loadSound('assets/sounds/health_pickup.wav');
+  healthPackSound.setVolume(sfxVolume);
+
+  playerDeathSound = loadSound('assets/sounds/player_death.wav');
+  playerDeathSound.setVolume(sfxVolume);
+  enemyDeathSound = loadSound('assets/sounds/enemy_death.wav');
+  enemyDeathSound.setVolume(sfxVolume);
 
   bgMusic = loadSound('assets/sounds/menu_music_potentially.wav');
   // play background music in loop
@@ -101,6 +116,9 @@ function draw()
 
           healthScore += 10;
           enemyKills += 1;
+
+          // audio play enemy death sound
+          enemyDeathSound.play();
         }
       }
     }
@@ -116,6 +134,9 @@ function draw()
         enemyBullet.splice(i,1);
         i--;
         player.health -= 10;
+
+        // audio play player damage sound
+        playerDamageSound.play();
       }
     }
     //draw FPS counter
@@ -192,6 +213,12 @@ function draw()
   
   if(death === true)
   {
+    // play player death sound
+    playerDeathSound.play();
+    noLoop();
+
+    bgMusic.stop();
+
     push();
     shadow('rgba(0, 0, 0, 1)');
     fill(255);
@@ -363,21 +390,23 @@ class Bullet
     if(playerOrEnemy === true)
     {
       this.color = ('#ffffff');
+
       this.flightForce = 15;
       this.angle = player.mainAngle-180;
       this.pos = createVector(player.pos.x,player.pos.y);
       this.vel = createVector(0, 0);
-      this.size = 5;
+      this.size = 10;
       this.arr = playerBullet;
     }
     else
     {
       this.color = ('#ff0000');
+
       this.flightForce = 5;
       this.angle = enemyShips[i].mainAngle-180;
       this.pos = createVector(enemyShips[i].pos.x,enemyShips[i].pos.y);
       this.vel = createVector(0, 0);
-      this.size = 5;
+      this.size = 10;
       this.arr = enemyBullet;
     }
   }
@@ -466,6 +495,10 @@ class smallHealthPack {
 function smallHPPickup()
 {
   player.health += 20;
+
+  // play health pack pickup sound
+  healthPackSound.play();
+
   if (player.health > player.maxHealth)
     player.health = player.maxHealth;
 }
@@ -611,8 +644,6 @@ function checkCollision(bulletPos,rectPos,circleSize,rectWidth,rectHeight,angle)
   rectH = rectHeight;
   hPackW = 20;
   hPackH = 20;
-  //hPackX = healthPos.x;
-  //hPackY = healthPos.y;
 
   if (
     circleX + circleR > rectX && // right edge of circle > left edge of rectangle
@@ -647,40 +678,6 @@ function checkCollision(bulletPos,rectPos,circleSize,rectWidth,rectHeight,angle)
   {
     collisionSide = "";
   }
-// health pack collision
-  /*if (
-    rectX + rectY > hPackX && // right edge of circle > left edge of rectangle
-    rectX - rectY < hPackX + hPackW && // left edge of circle < right edge of rectangle
-    rectY + rectX > hPackY && // bottom edge of circle > top edge of rectangle
-    rectY - rectX < hPackY + hPackH
-  )
-  {
-    // top edge of health < bottom edge of rectangle
-    if (hPackX + hPackW > rectX && hPackX < rectX) 
-    {
-      // health hit left edge of rectangle
-      return true;
-    } 
-    else if (hPackX - hPackW < rectX + rectW && hPackX > rectX + rectW) 
-    {
-      // health hit right edge of rectangle
-      return true;
-    } 
-    else if (hPackY + hPackH > rectY && hPackY < rectY)  
-    {
-      // health hit top edge of rectangle
-      return true;
-    } 
-    else if (hPackY - hPackH < rectY + rectH && hPackY > rectY + rectH) 
-    {
-      // health hit bottom edge of rectangle
-      return true;
-    }
-  } 
-  else 
-  {
-    collisionSide = "";
-  }*/
 }
 
 function windowResized() 
