@@ -15,6 +15,11 @@ let bgArray = [];
 
 let smallHealthPacks = [];
 let healthScore = 0;
+let enemyCount = 3;
+let start = false;
+let enemyKills = 0;
+let spawnTime;
+let started = false;
 
 // preload sound
 let shootSound;
@@ -95,23 +100,28 @@ function draw()
           score += 10;
 
           healthScore += 10;
+          enemyKills += 1;
         }
       }
     }
 
     for(i = 0; i < enemyBullet.length; i++)
     {
-      enemyBullet[i].applyTanForce(.1);
-      enemyBullet[i].update();
-      enemyBullet[i].display();
-      if(checkCollision(enemyBullet[i].pos,player.pos,enemyBullet[i].size,player.rectWidth,player.rectHeight,player.mainAngle)) 
+      const eb = enemyBullet[i];
+      eb.applyTanForce(.1);
+      eb.update();
+      eb.display();
+      if(checkCollision(eb.pos,player.pos,eb.size,player.rectWidth,player.rectHeight,player.mainAngle)) 
       {
         enemyBullet.splice(i,1);
         i--;
         player.health -= 10;
       }
     }
-    
+    //draw FPS counter
+    push();
+    text(`${frameRate()}`, 20, 20);
+    pop();
 
     //draw health bar
     push();
@@ -119,8 +129,10 @@ function draw()
     fill(0);
     rect(player.pos.x-35,player.pos.y+((player.pos.y < height-60) ? 40 : -50), map(player.maxHealth,0,100,0,70),13); //max health
     pop();
+    push();
     fill('rgba(0, 192, 35, 1)');
     rect(player.pos.x-35,player.pos.y+((player.pos.y < height-60) ? 40 : -50),map(player.health,0,100,0,70),13); //current health
+    pop();
     push();
     shadow('rgba(0, 0, 0, 1)');
     fill(255);
@@ -158,6 +170,24 @@ function draw()
         smallHealthPacks.shift();
       }, 10000); // remove after 10 seconds
     }
+    push();
+    fill(255);
+    textSize(30);
+    text("Wave "+wave, windowWidth/20, windowHeight/10);
+    pop();
+  if(start === true)
+  {
+    startWave();
+    if((millis() > (spawnTime + 1000)) && ((enemyCount-enemyKills) > (enemyShips.length))){
+    spawnEnemy();
+    spawnTime = millis();
+    }
+    if(enemyCount <= enemyKills)
+    {
+      wave++;
+      endWave();
+    }
+  }
   } 
   
   if(death === true)
@@ -211,6 +241,11 @@ class Player
     translate(this.pos.x,this.pos.y);
     rotate(this.mainAngle -90);
     image(spritePlayer, -32, -32);
+    pop();
+
+    push();
+    fill('rgba(255,0,0,1)')
+    rect(this.rectWidth,this.rectHeight);
     pop();
   }
  
@@ -337,6 +372,7 @@ class Enemy
       this.pos = createVector(player.pos.x,player.pos.y);
       this.vel = createVector(0, 0);
       this.size = 5;
+      this.arr = playerBullet;
     }
     else
     {
@@ -346,18 +382,24 @@ class Enemy
       this.pos = createVector(enemyShips[i].pos.x,enemyShips[i].pos.y);
       this.vel = createVector(0, 0);
       this.size = 5;
+      this.arr = enemyBullet;
     }
   }
   update()
   {
     this.applyTanForce(this.flightForce);
     this.pos.add(this.vel);
+
+    if (this.pos.x >= width || this.pos.x <= 0 || this.pos.y >= height || this.pos.y <= 0)
+    {
+      this.arr.splice(i,1);
+      console.log(enemyBullet.length)
+    }
   }
   display()
   {
     push()
     //translate(this.pos.x,this.pos.y);
-    shadow('rgba(0, 0, 0, 1)');
     fill(this.color);
     
 
@@ -470,6 +512,9 @@ function keyPressed()
     pauseGame();
   }
 
+  if(keyCode === ENTER){
+   start = true;
+  }
 
   if(keyCode === 112)
   {
@@ -487,7 +532,7 @@ function startMenu()
     fill(255);
     textSize(20);
     textAlign(CENTER);
-    text("Use WASD to move, mouse to aim, Space to shoot, P to spawn enemy ships", width/2, 150);
+    text("Use WASD to move, mouse to aim, Space to shoot, Enter to start wave.", width/2, 150);
     textSize(40);
     text("Press any key to start", width/2, height/2);
     pop();
@@ -695,6 +740,8 @@ function resetGame()
   enemyShips = [];
   playerBullet = [];
   enemyBullet = [];
+  wave = 1;
+  enemyCount = 3;
 }
 
 function shadow(color, blurRadius = 10, offsetX = 0, offsetY = 0) 
@@ -703,4 +750,26 @@ function shadow(color, blurRadius = 10, offsetX = 0, offsetY = 0)
   drawingContext.shadowBlur = blurRadius;
   drawingContext.shadowOffsetX = offsetX;
   drawingContext.shadowOffsetY = offsetY;
+}
+
+
+function spawnEnemy()
+{
+  enemyShips.push(new Enemy());
+}
+function endWave()
+{
+  enemyShips = [];
+  playerBullet = [];
+  enemyBullet = [];
+  enemyKills = 0;
+  enemyCount = ((3)+((wave-1)*2));
+  start = false;
+}
+function startWave()
+{
+  if(started === false){
+spawnTime = millis();
+started = true;
+  }
 }
