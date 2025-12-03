@@ -13,6 +13,10 @@ let bgVolume = 0.18;
 let bulletVolume = 0.05;
 let sfxVolume = 0.1;
 let bgArray = [];
+let spawnTimeCooldownModifier = 0;
+let powerUpChosen = false;
+let choice;
+let choice2;
 
 let smallHealthPacks = [];
 let healthScore = 0;
@@ -21,6 +25,7 @@ let start = false;
 let enemyKills = 0;
 let spawnTime;
 let started = false;
+let powerUpScreen = false;
 
 // preload sound
 let shootSound;
@@ -29,6 +34,10 @@ let playerDeathSound;
 let enemyDeathSound;
 let healthPackSound;
 let bgMusic;
+//power up variables
+let bulletSpeedMod = 0;
+let healOnKillMod = 0;
+let speedMod = 0;
 
 function preload() 
 {
@@ -117,7 +126,12 @@ function draw()
 
           healthScore += 10;
           enemyKills += 1;
-
+            
+          player.health += healOnKillMod*5
+          if(player.health>player.maxHealth)
+          {
+            player.health = player.maxHealth;
+          }
           // audio play enemy death sound
           enemyDeathSound.play();
         }
@@ -149,11 +163,11 @@ function draw()
     push();
     shadow('rgba(0, 0, 0, 1)');
     fill(0);
-    rect(player.pos.x-35,player.pos.y+((player.pos.y < height-60) ? 40 : -50), map(player.maxHealth,0,100,0,70),13); //max health
+    rect(player.pos.x-35,player.pos.y+((player.pos.y < height-60) ? 40 : -50), map(player.maxHealth,0,player.maxHealth,0,70),13); //max health
     pop();
     push();
     fill('rgba(0, 192, 35, 1)');
-    rect(player.pos.x-35,player.pos.y+((player.pos.y < height-60) ? 40 : -50),map(player.health,0,100,0,70),13); //current health
+    rect(player.pos.x-35,player.pos.y+((player.pos.y < height-60) ? 40 : -50),map(player.health,0,player.maxHealth,0,70),13); //current health
     pop();
     push();
     shadow('rgba(0, 0, 0, 1)');
@@ -200,8 +214,9 @@ function draw()
     pop();
   if(start === true)
   {
+
     startWave();
-    if((millis() > (spawnTime + 1000)) && ((enemyCount-enemyKills) > (enemyShips.length))){
+    if((millis() > (spawnTime + 1000-(wave*10))) && ((enemyCount-enemyKills) > (enemyShips.length))){
     spawnEnemy();
     spawnTime = millis();
     }
@@ -210,6 +225,24 @@ function draw()
       wave++;
       endWave();
     }
+  }
+  if(powerUpScreen === true)
+  {
+  if(powerUpChosen === false)
+   randomizePowerUp();
+   
+   push();
+   fill(200);
+   rect(windowWidth/2+200,windowHeight/2,200,100);
+   rect(windowWidth/2-400,windowHeight/2,200,100);
+   pop();
+
+   push();
+   fill(0);
+   textSize(15);
+   text(drawPowerText(choice),windowWidth/2+225,windowHeight/2+50);
+   text(drawPowerText(choice2),windowWidth/2-375,windowHeight/2+50);
+   pop();
   }
   } 
   
@@ -251,9 +284,6 @@ class Player
     this.drag = 0.1;
     this.health = 100;
     this.maxHealth = 100;
-    this.fireRate = 150;
-    this.healOnKill;
-    this.defense;
   }
   update() 
   {
@@ -276,19 +306,19 @@ class Player
   {
     //-------------WASD----------------
     if (keyIsDown(87)) // W
-      this.vel.y -= .75;
+      this.vel.y -= .75+(speedMod/7);
     
     if (keyIsDown(65)) // A
     {
-      this.vel.x -= .75;
+      this.vel.x -= .75+(speedMod/7);
     }
     else if (keyIsDown(68)) // S
     {
-      this.vel.x +=.75;
+      this.vel.x +=.75+(speedMod/7);
     }
 
     if (keyIsDown(83)) // D
-      this.vel.y +=.75;
+      this.vel.y +=.75+(speedMod/7);
     //----------------------------------
     //          Afterburner
 
@@ -301,7 +331,7 @@ class Player
   {
     //----------------------------------
     //    Check for shooting input
-    if(keyIsDown(32) && (millis() > (lastShotTime + 150))) // (lastShotTime + interval between bullets)
+    if(keyIsDown(32) && (millis() > (lastShotTime + (500 - bulletSpeedMod*50)))) // (lastShotTime + interval between bullets)
     {
       console.log("Ran Bullet");
       playerBullet.push(new Bullet(true));
@@ -770,6 +800,19 @@ function endWave()
   enemyKills = 0;
   enemyCount = ((3)+((wave-1)*2));
   start = false;
+  if(wave >= 30)
+    spawnTimeCooldownModifier = 700;
+  else if(wave >= 25)
+    spawnTimeCooldownModifier = 600;
+  else if(wave >= 20)
+    spawnTimeCooldownModifier = 300;
+  else if (wave >= 10)
+    spawnTimeCooldownModifier = 200;
+
+  powerUpScreen = true;
+  powerUpChosen = false;
+  
+  
 }
 function startWave()
 {
@@ -777,4 +820,63 @@ function startWave()
     spawnTime = millis();
     started = true;
   }
+}
+function randomizePowerUp()
+{
+  choice = (int(random(0,4)));
+  choice2 = (int(random(0,4)));
+  while(choice === choice2)
+  {
+    choice2 = (int(random(0,4)));
+  }
+  powerUpChosen = true;
+}
+function drawPowerText(selectedPower)
+{
+  if(selectedPower === 0)
+   return("Increase Fire Rate");
+  else if(selectedPower === 1)
+    return("Increase Health On Kill");
+  else if (selectedPower === 2)
+    return("increase Max HP by 10");
+  else 
+    return("increase Speed"); 
+}
+function mousePressed()
+{ if(powerUpScreen === true)
+{   //power up 1
+
+  if (mouseX > (windowWidth/2+200) && mouseX < (windowWidth/2+200) + 200 && mouseY > windowHeight/2 && mouseY < windowHeight/2 + 100) {
+    console.log("choice1");
+    powerUp(choice);
+    powerUpScreen = false;
+}
+if (mouseX > (windowWidth/2-400) && mouseX < (windowWidth/2-400) + 200 && mouseY > windowHeight/2 && mouseY < windowHeight/2 + 100) {
+  console.log("choice2");
+  powerUp(choice2);
+  powerUpScreen = false;
+}
+}
+
+}
+
+function powerUp(power)
+{
+ if(power === 0)
+ {
+  console.log("bullet increase")
+  bulletSpeedMod++;
+ }
+  else if(power === 1){
+    console.log("Heal on kill increase")
+    healOnKillMod++;
+  }
+  else if (power === 2){
+    console.log("max Health increase")
+    player.maxHealth += 10;
+  }
+    else {
+    console.log("speed increase")
+    speedMod++;
+    }
 }

@@ -1,1 +1,3 @@
 # TopCopter
+our game is a wave based shooter with endlessly spawning helicopters. 
+our most interesting class in the enemy class. This class, when activated through the draw function, created a enemy helicopter that appears on the edge of the players screen randomly. it uses vectors to track the player, and tracks the player by using their location and checking the angle, and focusing on that point. the enemies also use the bullet class, where they shoot out bullets in the direction they are facing (towards the player). These bullets check the collision of each player and enemy to determine weather or not the bullet has his the player or enemy, and then destroys them.
