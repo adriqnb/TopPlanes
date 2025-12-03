@@ -9,9 +9,9 @@ let lastShotTime;
 let death = false;
 let score = 0;
 let wave = 1;
-let bgVolume = 0.18;
+let bgVolume = 0.12;
 let bulletVolume = 0.05;
-let sfxVolume = 0.1;
+let sfxVolume = 0.15;
 let bgArray = [];
 let spawnTimeCooldownModifier = 0;
 let powerUpChosen = false;
@@ -52,7 +52,7 @@ function preload()
   shootSound = loadSound('assets/sounds/Pew.wav');
   shootSound.setVolume(bulletVolume);
   playerDamageSound = loadSound('assets/sounds/player_damage.wav');
-  playerDamageSound.setVolume(bulletVolume);
+  playerDamageSound.setVolume(sfxVolume);
 
   healthPackSound = loadSound('assets/sounds/health_pickup.wav');
   healthPackSound.setVolume(sfxVolume);
@@ -766,6 +766,8 @@ function pauseGame()
 
 function resetGame()
 {
+  window.location.reload();
+  /*
   player.maxHealth = 100;
   player.health = 100;
   score = 0;
@@ -776,7 +778,7 @@ function resetGame()
   enemyBullet = [];
   wave = 1;
   enemyCount = 3;
-  enemyKills = 0;
+  enemyKills = 0;*/
 }
 
 function shadow(color, blurRadius = 10, offsetX = 0, offsetY = 0) 
