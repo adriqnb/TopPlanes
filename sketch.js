@@ -2,7 +2,8 @@ let showText = true;
 let paused = false;
 
 let player;
-let spritePlayer, spriteEnemy, spriteCrosshair, clouds, bgTile;
+let spritePlayer, spriteEnemy, spriteCrosshair, clouds, bgTile, dialogBox;
+let pixelFont;
 let enemyShips = [];
 let playerBullet = [];
 let lastShotTime;
@@ -41,6 +42,7 @@ let speedMod = 0;
 
 function preload() 
 {
+  pixelFont = loadFont('assets/BoldPixels.ttf');
   soundFormats('mp3', 'ogg', 'wav');
 
   spriteEnemy = loadImage('assets/enemy.gif');
@@ -48,6 +50,7 @@ function preload()
   spriteCrosshair = loadImage('assets/crosshair.gif');
   bgTile = loadImage('assets/bgTile.png');
   pause = loadImage('assets/pause.png');
+  dialogBox = loadImage('assets/dialogbox.png')
 
   shootSound = loadSound('assets/sounds/Pew.wav');
   shootSound.setVolume(bulletVolume);
@@ -77,6 +80,7 @@ function setup()
   angleMode(DEGREES);
   player = new Player();
   lastShotTime = millis();
+  textFont(pixelFont);
   
   initBg(); // initialize background columns
 }
@@ -110,7 +114,6 @@ function draw()
     for (i = 0; i < playerBullet.length; i++)
     {
       const pb = playerBullet[i];
-      pb.applyTanForce(.1);
       pb.update();
       pb.display();
 
@@ -141,7 +144,6 @@ function draw()
     for(i = 0; i < enemyBullet.length; i++)
     {
       const eb = enemyBullet[i];
-      eb.applyTanForce(.1);
       eb.update();
       eb.display();
       if(checkCollision(eb.pos,player.pos,eb.size,player.rectWidth,player.rectHeight,player.mainAngle)) 
@@ -173,8 +175,8 @@ function draw()
     shadow('rgba(0, 0, 0, 1)');
     fill(255);
     textAlign(CENTER);
-    textSize(15);
-    text(player.health+'/'+player.maxHealth,player.pos.x,player.pos.y+((player.pos.y < height-60) ? 52 : -38));
+    textSize(16);
+    text(player.health+'/'+player.maxHealth,player.pos.x,player.pos.y+((player.pos.y < height-60) ? 51 : -38));
     pop();
 
     // spawn health packs upon enemy kills at latest enemy killed's location
@@ -232,16 +234,18 @@ function draw()
    randomizePowerUp();
    
    push();
-   fill(200);
-   rect(windowWidth/2+200,windowHeight/2,200,100);
-   rect(windowWidth/2-400,windowHeight/2,200,100);
+   shadow()
+   imageMode(CENTER);
+   image(dialogBox, windowWidth/3,windowHeight/2,200,133.33)
+   image(dialogBox, 2*windowWidth/3,windowHeight/2,200,133.33)
    pop();
 
    push();
    fill(0);
-   textSize(15);
-   text(drawPowerText(choice),windowWidth/2+225,windowHeight/2+50);
-   text(drawPowerText(choice2),windowWidth/2-375,windowHeight/2+50);
+   textAlign(CENTER);
+   textSize(17);
+   text(drawPowerText(choice),windowWidth/3,windowHeight/2);
+   text(drawPowerText(choice2),2*windowWidth/3,windowHeight/2);
    pop();
   }
   } 
@@ -840,9 +844,9 @@ function drawPowerText(selectedPower)
   else if(selectedPower === 1)
     return("Increase Health On Kill");
   else if (selectedPower === 2)
-    return("increase Max HP by 10");
+    return("Increase Max HP by 10");
   else 
-    return("increase Speed"); 
+    return("Increase Speed"); 
 }
 function mousePressed()
 { if(powerUpScreen === true)
