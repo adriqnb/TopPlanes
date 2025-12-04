@@ -39,6 +39,10 @@ let bulletSpeedMod = 0;
 let healOnKillMod = 0;
 let speedMod = 0;
 
+// health pack spawn location
+let hpX;
+let hpY;
+
 function preload() 
 {
   soundFormats('mp3', 'ogg', 'wav');
@@ -96,6 +100,9 @@ function draw()
 
   if (death === false)
   {
+    hpX = enemyShips.length > 0 ? enemyShips[0].pos.x : random(50, width - 50);
+    hpY = enemyShips.length > 0 ? enemyShips[0].pos.y : random(50, height - 50);
+
     player.checkMovement();
     player.checkShooting(); //rapid fire function
     player.update();
@@ -180,9 +187,12 @@ function draw()
     // spawn health packs upon enemy kills at latest enemy killed's location
     if (healthScore % 50 === 0 && healthScore != 0 && smallHealthPacks.length < 1) 
     {
-      let hpX = enemyShips.length > 0 ? enemyShips[0].pos.x : random(50, width - 50);
-      let hpY = enemyShips.length > 0 ? enemyShips[0].pos.y : random(50, height - 50);
+      //let hpX = enemyShips.length > 0 ? enemyShips[0].pos.x : random(50, width - 50);
+      //let hpY = enemyShips.length > 0 ? enemyShips[0].pos.y : random(50, height - 50);
       smallHealthPacks.push(new SmallHealthPack(hpX, hpY));
+
+      hpX = enemyShips.length > 0 ? enemyShips[0].pos.x : random(50, width - 50);
+      hpY = enemyShips.length > 0 ? enemyShips[0].pos.y : random(50, height - 50);
     }
 
     // draw health packs
@@ -198,14 +208,14 @@ function draw()
         healthScore = 0; // reset health score to prevent multiple spawns
       }
     }
-
+    /*
     // remove health pack after short duration
     if (smallHealthPacks.length > 0) 
     {
       setTimeout(() => {
         smallHealthPacks.shift();
       }, 10000); // remove after 10 seconds
-    }
+    }*/
     push();
     fill(255);
     textSize(30);
@@ -807,8 +817,10 @@ function endWave()
   else if(wave >= 25)
     spawnTimeCooldownModifier = 600;
   else if(wave >= 20)
-    spawnTimeCooldownModifier = 300;
+    spawnTimeCooldownModifier = 500;
   else if (wave >= 10)
+    spawnTimeCooldownModifier = 400;
+  else if (wave >= 5)
     spawnTimeCooldownModifier = 200;
 
   powerUpScreen = true;
