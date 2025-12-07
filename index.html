@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Top 'Copter</title>
+    <title>Top Copter</title>
     <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
 
     <link rel="stylesheet" type="text/css" href="style.css">
@@ -14,6 +14,18 @@
   </head>
 
   <body>
-    <script src="sketch.js"></script>
+    <!-- Import all javascript files needed to run the game -->
+    <!-- Seperating our functions into seperate files helps to keep our code neater -->
+    <script src="src/background.js"></script>
+    <script src="src/boss.js"></script>
+    <script src="src/bullet.js"></script>
+    <script src="src/isCollision.js"></script>
+    <script src="src/enemy.js"></script>
+    <script src="src/healthPack.js"></script>
+    <script src="src/player.js"></script>
+    <script src="src/powerUps.js"></script>
+    <script src="src/waves.js"></script>
+    
+    <script src="main.js"></script>
   </body>
 </html>
