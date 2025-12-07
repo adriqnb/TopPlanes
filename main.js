@@ -102,7 +102,7 @@ function draw() {
     // draw health packs
     for (let h = 0; h < smallHealthPacks.length; h++) {
       smallHealthPacks[h].display();
-      if (checkHealthPackCollision(smallHealthPacks[h].getPos(), player.pos, player.rectWidth, player.rectHeight)) {
+      if (isCollision(smallHealthPacks[h].getPos(), player.pos, 12, player.rectWidth, player.rectHeight)) {
         smallHealthPacks.splice(h, 1);
         smallHPPickup();
         h--;
@@ -279,7 +279,7 @@ function windowResized() {
 }
 
 function pauseGame() {
-  if (!paused && !showText) {
+  if (!paused && !showText && !death) {
     frameRate(0); // freeze the game
     bgMusic.pause(); // pause background music
     
@@ -293,7 +293,7 @@ function pauseGame() {
 
     cursor(ARROW); //show cursor
 
-  } else if (paused && !showText) {
+  } else if (paused && !showText && !death) {
     frameRate(60); // resume the game
     bgMusic.play(); // resume background music
     noCursor(); // hide cursor

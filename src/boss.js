@@ -91,7 +91,7 @@ class Boss {
         j--;
 
         this.health -= 10;
-        healthScore += 10;
+        healthScore += 20;
         bossHitSound.play();
 
         if (this.health == 0) {
