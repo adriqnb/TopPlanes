@@ -17,6 +17,7 @@ class SmallHealthPack {
   }
 
   display() {
+    // draw health pack
     push();
     shadow('rgba(0, 0, 0, 1)');
     fill('rgba(255, 0, 0, 1)');
