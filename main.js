@@ -306,13 +306,14 @@ function mousePressed() {
     if (mouseX > (width/3)-100 && mouseX < (width/3)+100 && mouseY > (height/2)-(133.33/2) && mouseY < (height/2)+(133.33/2)) {
       powerUp(choice);
       powerUpScreen = false;
+      showReminder = true;
     }
     //power up 2
     if (mouseX > (2*width/3)-100 && mouseX < (2*width/3)+100 && mouseY > (height/2)-(133.33/2) && mouseY < (height/2)+(133.33/2)) {
       powerUp(choice2);
       powerUpScreen = false;
+      showReminder = true;
     }
-    showReminder = true;
   }
 }
 
