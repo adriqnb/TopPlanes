@@ -29,6 +29,8 @@ Alex - I mainly worked on the backend of the game, specifically with movement, e
 
 Adrian - I mainly focused on more visual elements, such as the background, assets, and organizing visual elements. Later on in the project, I also created bosses that show up every 5 waves and also did a refactor/code base clean up.
 
+Luke - My focus was primarily aimed at the audio portion, meaning the SFX, background music, mixing/balancing, and their triggering. I also worked on the health packs and their initial functionality.
+
 
 - Your experience working collaboratively:
 
@@ -36,6 +38,7 @@ Alex - I had a great time working my group mates! due to the fact that we all wo
 
 Adrian - My partners were all very helpful and I think that we made a good team. We were able to on and off work on the project whenever we had spare time, and this led to efficient development of our project over time. The use of Git and GitHub streamlined our collaborative process.
 
+Luke - Working in this group was quite the enjoyable experience, as everyone had the drive to want to keep making the project as fun as it could be. We all cycled working on various portions of the game, providing ideas and help, and as previously mentioned Github made this extremely easy to do.
 
 - Any specific functions, classes, or features you worked on:
 
@@ -43,12 +46,15 @@ Alex - I worked on the Player, Enemy, and Bullet classes, along with Power ups a
 
 Adrian - I worked mainly on the background functions/classes and boss functions/classes.
 
+Luke - I mainly worked on the health packs and sound-related functions, but I also "fixed" the game reset function with a slightly silly, but workable method.
 
 - What aspects of the code worked exactly as you hoped didn’t work at first, and how you solved or re-designed them:
 
 Alex - The power up code worked almost perfectly on the first try. The piece of code that gave me the most trouble was the movement of our player. Originally, we had the player sliding around the map, similar to a airplane. However, when testing further, we came across problems with player precision with our movement, causing us to divert to a helicopter instead of a plane. 
 
 Adrian - When I created the boss feature, it worked on basically my first try. This is mainly because we already had a similar frame work for the enemies, so porting all of that to make a bigger boss enemy was not too hard. An aspect of the code that I really struggled with for a while was how to tile the background in order to make it move. At first, I drew the entire background using for loops, and attempted to tile those larger background tiles for the illusion of movement. This didn't really work though, as there were too many visual artifacts. So, I changed my approach and instead decided to tile in columns that move across the screen, which worked much better.
+
+Luke - At first the health packs weren't spawning at the correct locations (the latest enemy killed), but instead were spawning at currently still alive enemy locations. I later realized the reason for this was because of how .splice works, meaning once the enemy that was just destroyed was removed from the array, the next one to fill in that space would be the spawn location. However, by declaring the pack location variables as global variables, then having them get the location of the enemy first, then pushing the pack, then getting the new location, the problem was solved. In reality this should've been the way I wrote it initially, but I tried to take a shortcut, and if there's anything I've learned it's that shortcuts aren't always viable.
 
 🔹 4. Technical Highlights
 - The parts of your code you’re most proud of:
