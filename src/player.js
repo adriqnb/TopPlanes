@@ -1,22 +1,29 @@
+/**
+ * player.js
+ *
+ * Contains code related to the player
+ */
+let player; // player object
+let spritePlayer; // player sprite
 let lastShotTime = 0;
 
 class Player {
   constructor() {
     this.pos = createVector(width/2, height/2+100);
     this.vel = createVector(0, 0, 0);
-    this.rectHeight = 25;
-    this.rectWidth = 25;
-    this.drag = 0.1;
+    this.rectHeight = 25; // hitbox height
+    this.rectWidth = 25; // hitbox width
+    this.drag = 0.1; // drag factor
     this.health = 100;
     this.maxHealth = 100;
   }
   update() {
-    this.mainAngle = atan2(mouseY - this.pos.y, mouseX - this.pos.x);
-    this.vel.x *=(1-this.drag);
+    this.mainAngle = atan2(mouseY - this.pos.y, mouseX - this.pos.x); // angle toward mouse
+    this.vel.x *=(1-this.drag); // apply drag to velocity
     this.vel.y *=(1-this.drag);
-    this.pos.add(this.vel);
+    this.pos.add(this.vel); // update position by velocity
   }
-  display() {
+  display() { // draw player
     push();
     shadow('rgba(0, 0, 0, 1)');
     translate(this.pos.x,this.pos.y);
@@ -25,7 +32,7 @@ class Player {
     pop();
   }
  
-  checkMovement() {
+  checkMovement() { // WASD movement
     //-------------WASD----------------
     if (keyIsDown(87)) // W
       this.vel.y -= .75+(speedMod/7);
@@ -62,22 +69,26 @@ class Player {
   }
 
   checkCollision() {
+    // check for collisions with any enemy bullets
     for (let i = 0; i < enemyBulletArr.length; i++) {
       if (enemyBulletArr.length != 0 && isCollision(enemyBulletArr[i].pos, this.pos, enemyBulletArr[i].size, this.rectWidth, this.rectHeight)) {
+        // remove detected bullet from array
         enemyBulletArr.splice(i,1);
         i--;
-        player.health -= 10;
+        player.health -= 10; // subtract player health
 
         // audio play player damage sound
         playerDamageSound.play();
       }
     }
-
+    
+    // check for collisions with any boss bullets
     for (let i = 0; i < bossBulletArr.length; i++) {
       if (bossBulletArr.length != 0 && isCollision(bossBulletArr[i].pos, this.pos, bossBulletArr[i].size, this.rectWidth, this.rectHeight)) {
+        // remove detected bullet from array
         bossBulletArr.splice(i,1);
         i--;
-        player.health -= 20;
+        player.health -= 20; // subtract player health
 
         // audio play player damage sound
         playerDamageSound.play();

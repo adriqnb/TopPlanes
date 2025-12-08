@@ -1,13 +1,20 @@
+/**
+ * isCollision.js
+ *
+ * Contains code related to our collision detector
+ */
 function isCollision(bulletPos,rectPos,circleSize,rectWidth,rectHeight) {
+  // bullet hitbox pos
   circleX = bulletPos.x;
   circleY = bulletPos.y;
+  // ship hitbox pos
   rectX = rectPos.x - rectWidth/2;
   rectY = rectPos.y - rectHeight/2;
+  // bullet hitbox
   circleR = circleSize*2;
+  // ship hitbox
   rectW = rectWidth;
   rectH = rectHeight;
-  hPackW = 20;
-  hPackH = 20;
 
   if (
     circleX + circleR > rectX && // right edge of circle > left edge of rectangle

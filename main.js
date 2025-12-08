@@ -2,10 +2,8 @@ let showText = true;
 let showReminder = false;
 let paused = false;
 
-let player;
-let spritePlayer, spriteEnemy, spriteCrosshair, dialogBox;
+let spriteCrosshair;
 let pixelFont;
-
 
 let death = false;
 let score = 0;
@@ -15,6 +13,7 @@ let bossBulletArr = [];
 let enemyCopters = [];
 let bossCopters = [];
 
+// time interval at which bullets spawn
 let bulletInterval = setInterval(runBullet, 1000);
 
 // Set audio volume
@@ -68,6 +67,7 @@ function draw() {
     death = true;
 
   if (!death) {
+    //randomize health pack location
     hpX = enemyCopters.length > 0 ? enemyCopters[0].pos.x : random(50, width - 50);
     hpY = enemyCopters.length > 0 ? enemyCopters[0].pos.y : random(50, height - 50);
 
@@ -91,26 +91,13 @@ function draw() {
 
     drawHealthBar();
 
-    // spawn health packs upon enemy kills at latest enemy killed's location
-    if (healthScore % 50 === 0 && healthScore != 0 && smallHealthPacks.length < 1) {
-      smallHealthPacks.push(new SmallHealthPack(hpX, hpY));
+    // spawn health pack based on conditions
+    spawnHP();
 
-      hpX = enemyCopters.length > 0 ? enemyCopters[0].pos.x : random(50, width - 50);
-      hpY = enemyCopters.length > 0 ? enemyCopters[0].pos.y : random(50, height - 50);
-    }
+    // draw all active health packs
+    drawHP();
 
-    // draw health packs
-    for (let h = 0; h < smallHealthPacks.length; h++) {
-      smallHealthPacks[h].display();
-      if (isCollision(smallHealthPacks[h].getPos(), player.pos, 12, player.rectWidth, player.rectHeight)) {
-        smallHealthPacks.splice(h, 1);
-        smallHPPickup();
-        h--;
-
-        healthScore = 0; // reset health score to prevent multiple spawns
-      }
-    }
-
+    // draw wave number
     push();
     fill(255);
     textSize(40);
@@ -118,42 +105,9 @@ function draw() {
     text("Wave " + wave, width/20, height/10);
     pop();
 
-    if (start) {
-      startWave();
-      if ((millis() > (eSpawnTime + 1000-(wave*10))) && ((enemyCount-enemyKills) > (enemyCopters.length))) {
-        spawnEnemy();
-        eSpawnTime = millis();
-      }
+    updateWave();
 
-      if ((millis() > (bSpawnTime + 1000-(wave*10))) && ((bossCount-bossKills) > (bossCopters.length)) && ((wave % 5) == 0)) {
-        spawnBoss();
-        bSpawnTime = millis();
-      }
-
-      if (((wave % 5) == 0)) {
-        if (enemyCount <= enemyKills && bossCount <= bossKills) {
-          wave++;
-          endWave();
-        }
-      } else {
-        if (enemyCount <= enemyKills) {
-          wave++;
-          endWave();
-        }
-      }
-    }
-    
-    if (powerUpScreen) {
-      if (!powerUpChosen) {
-        randomizePowerUp();
-        dialog1 = new PowerUpDialog(choice);
-        dialog2 = new PowerUpDialog(choice2);
-      }
-      
-      dialog1.display(width/3, height/2);
-      dialog2.display(2*width/3, height/2);
-      
-    }
+    drawPowerUpScreen();
   } 
   
   if (death) {
